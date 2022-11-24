@@ -27,4 +27,4 @@ go.work
 .vscode/
 
 # The executable
-worker
+hub
