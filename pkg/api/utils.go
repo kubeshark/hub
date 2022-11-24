@@ -5,13 +5,13 @@ import (
 	"log"
 
 	"github.com/kubeshark/hub/pkg/providers/tappedPods"
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/worker/models"
 )
 
 func BroadcastTappedPodsStatus() {
 	tappedPodsStatus := tappedPods.GetTappedPodsStatus()
 
-	message := shared.CreateWebSocketStatusMessage(tappedPodsStatus)
+	message := models.CreateWebSocketStatusMessage(tappedPodsStatus)
 	if jsonBytes, err := json.Marshal(message); err != nil {
 		log.Printf("Could not Marshal message %v", err)
 	} else {
@@ -19,8 +19,8 @@ func BroadcastTappedPodsStatus() {
 	}
 }
 
-func SendTappedPods(socketId int, nodeToTappedPodMap shared.NodeToPodsMap) {
-	message := shared.CreateWebSocketTappedPodsMessage(nodeToTappedPodMap)
+func SendTappedPods(socketId int, nodeToTappedPodMap models.NodeToPodsMap) {
+	message := models.CreateWebSocketTappedPodsMessage(nodeToTappedPodMap)
 	if jsonBytes, err := json.Marshal(message); err != nil {
 		log.Printf("Could not Marshal message %v", err)
 	} else {
@@ -30,8 +30,8 @@ func SendTappedPods(socketId int, nodeToTappedPodMap shared.NodeToPodsMap) {
 	}
 }
 
-func BroadcastTappedPodsToTappers(nodeToTappedPodMap shared.NodeToPodsMap) {
-	message := shared.CreateWebSocketTappedPodsMessage(nodeToTappedPodMap)
+func BroadcastTappedPodsToTappers(nodeToTappedPodMap models.NodeToPodsMap) {
+	message := models.CreateWebSocketTappedPodsMessage(nodeToTappedPodMap)
 	if jsonBytes, err := json.Marshal(message); err != nil {
 		log.Printf("Could not Marshal message %v", err)
 	} else {

@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/kubeshark/hub/pkg/app"
-	"github.com/kubeshark/hub/pkg/models"
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/hub/pkg/db"
 	tapApi "github.com/kubeshark/worker/api"
+	"github.com/kubeshark/worker/models"
 	basenine "github.com/up9inc/basenine/client/go"
 )
 
@@ -22,7 +22,7 @@ type EntriesProvider interface {
 type BasenineEntriesProvider struct{}
 
 func (e *BasenineEntriesProvider) GetEntries(entriesRequest *models.EntriesRequest) ([]*tapApi.EntryWrapper, *basenine.Metadata, error) {
-	data, _, lastMeta, err := basenine.Fetch(shared.BasenineHost, shared.BaseninePort,
+	data, _, lastMeta, err := basenine.Fetch(db.BasenineHost, db.BaseninePort,
 		entriesRequest.LeftOff, entriesRequest.Direction, entriesRequest.Query,
 		entriesRequest.Limit, time.Duration(entriesRequest.TimeoutMs)*time.Millisecond)
 	if err != nil {
@@ -68,7 +68,7 @@ func (e *BasenineEntriesProvider) GetEntries(entriesRequest *models.EntriesReque
 
 func (e *BasenineEntriesProvider) GetEntry(singleEntryRequest *models.SingleEntryRequest, entryId string) (*tapApi.EntryWrapper, error) {
 	var entry *tapApi.Entry
-	bytes, err := basenine.Single(shared.BasenineHost, shared.BaseninePort, entryId, singleEntryRequest.Query)
+	bytes, err := basenine.Single(db.BasenineHost, db.BaseninePort, entryId, singleEntryRequest.Query)
 	if err != nil {
 		return nil, err
 	}

@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/kubeshark/hub/pkg/db"
 	"github.com/kubeshark/hub/pkg/dependency"
-	"github.com/kubeshark/kubeshark/shared"
 	tapApi "github.com/kubeshark/worker/api"
 	basenine "github.com/up9inc/basenine/client/go"
 )
@@ -23,7 +23,7 @@ func (e *BasenineEntryStreamer) Get(ctx context.Context, socketId int, params *W
 
 	entryStreamerSocketConnector := dependency.GetInstance(dependency.EntryStreamerSocketConnector).(EntryStreamerSocketConnector)
 
-	connection, err := basenine.NewConnection(shared.BasenineHost, shared.BaseninePort)
+	connection, err := basenine.NewConnection(db.BasenineHost, db.BaseninePort)
 	if err != nil {
 		log.Printf("Failed to establish a connection to Basenine: %v", err)
 		entryStreamerSocketConnector.CleanupSocket(socketId)
@@ -34,7 +34,7 @@ func (e *BasenineEntryStreamer) Get(ctx context.Context, socketId int, params *W
 	meta := make(chan []byte)
 
 	query := params.Query
-	if err = basenine.Validate(shared.BasenineHost, shared.BaseninePort, query); err != nil {
+	if err = basenine.Validate(db.BasenineHost, db.BaseninePort, query); err != nil {
 		if err := entryStreamerSocketConnector.SendToastError(socketId, err); err != nil {
 			return err
 		}
@@ -120,8 +120,8 @@ func (e *BasenineEntryStreamer) fetch(socketId int, params *WebSocketParams, con
 	var firstMeta []byte
 	var lastMeta []byte
 	data, firstMeta, lastMeta, err = basenine.Fetch(
-		shared.BasenineHost,
-		shared.BaseninePort,
+		db.BasenineHost,
+		db.BaseninePort,
 		params.LeftOff,
 		-1,
 		params.Query,

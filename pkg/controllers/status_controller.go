@@ -12,21 +12,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/api"
 	"github.com/kubeshark/hub/pkg/holder"
+	"github.com/kubeshark/hub/pkg/kubernetes"
 	"github.com/kubeshark/hub/pkg/providers"
 	"github.com/kubeshark/hub/pkg/providers/tappedPods"
 	"github.com/kubeshark/hub/pkg/providers/tappers"
 	"github.com/kubeshark/hub/pkg/validation"
-	"github.com/kubeshark/kubeshark/shared"
-	"github.com/kubeshark/kubeshark/shared/kubernetes"
+	"github.com/kubeshark/worker/models"
 )
 
 func HealthCheck(c *gin.Context) {
-	tappersStatus := make([]*shared.TapperStatus, 0)
+	tappersStatus := make([]*models.TapperStatus, 0)
 	for _, value := range tappers.GetStatus() {
 		tappersStatus = append(tappersStatus, value)
 	}
 
-	response := shared.HealthResponse{
+	response := models.HealthResponse{
 		TappedPods:            tappedPods.Get(),
 		ConnectedTappersCount: tappers.GetConnectedCount(),
 		TappersStatus:         tappersStatus,
@@ -53,7 +53,7 @@ func PostTappedPods(c *gin.Context) {
 }
 
 func PostTapperStatus(c *gin.Context) {
-	tapperStatus := &shared.TapperStatus{}
+	tapperStatus := &models.TapperStatus{}
 	if err := c.Bind(tapperStatus); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return

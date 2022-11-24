@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/hub/pkg/db"
 	"github.com/kubeshark/worker/api"
 	basenine "github.com/up9inc/basenine/client/go"
 )
@@ -53,17 +53,17 @@ func (e *BasenineEntryInserter) Insert(entry *api.Entry) error {
 
 func initializeConnection() *basenine.Connection {
 	for {
-		connection, err := basenine.NewConnection(shared.BasenineHost, shared.BaseninePort)
+		connection, err := basenine.NewConnection(db.BasenineHost, db.BaseninePort)
 		if err != nil {
 			log.Printf("Can't establish a new connection to Basenine server: %v", err)
-			time.Sleep(shared.BasenineReconnectInterval * time.Second)
+			time.Sleep(db.BasenineReconnectInterval * time.Second)
 			continue
 		}
 
 		if err = connection.InsertMode(); err != nil {
 			log.Printf("Insert mode call failed: %v", err)
 			connection.Close()
-			time.Sleep(shared.BasenineReconnectInterval * time.Second)
+			time.Sleep(db.BasenineReconnectInterval * time.Second)
 			continue
 		}
 

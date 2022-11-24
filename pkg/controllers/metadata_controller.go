@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/version"
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/worker/models"
 )
 
 func GetVersion(c *gin.Context) {
-	resp := shared.VersionResponse{Ver: version.Ver}
+	resp := models.VersionResponse{Ver: version.Ver}
 	c.JSON(http.StatusOK, resp)
 }

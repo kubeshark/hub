@@ -8,19 +8,19 @@ import (
 
 	"github.com/kubeshark/hub/pkg/providers/tappers"
 	"github.com/kubeshark/hub/pkg/utils"
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/worker/models"
 )
 
-const FilePath = shared.DataDirPath + "tapped-pods.json"
+const FilePath = models.DataDirPath + "tapped-pods.json"
 
 var (
 	lock                    = &sync.Mutex{}
 	syncOnce                sync.Once
-	tappedPods              []*shared.PodInfo
-	nodeHostToTappedPodsMap shared.NodeToPodsMap
+	tappedPods              []*models.PodInfo
+	nodeHostToTappedPodsMap models.NodeToPodsMap
 )
 
-func Get() []*shared.PodInfo {
+func Get() []*models.PodInfo {
 	syncOnce.Do(func() {
 		if err := utils.ReadJsonFile(FilePath, &tappedPods); err != nil {
 			if !os.IsNotExist(err) {
@@ -32,7 +32,7 @@ func Get() []*shared.PodInfo {
 	return tappedPods
 }
 
-func Set(tappedPodsToSet []*shared.PodInfo) {
+func Set(tappedPodsToSet []*models.PodInfo) {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -42,8 +42,8 @@ func Set(tappedPodsToSet []*shared.PodInfo) {
 	}
 }
 
-func GetTappedPodsStatus() []shared.TappedPodStatus {
-	tappedPodsStatus := make([]shared.TappedPodStatus, 0)
+func GetTappedPodsStatus() []models.TappedPodStatus {
+	tappedPodsStatus := make([]models.TappedPodStatus, 0)
 	tapperStatus := tappers.GetStatus()
 	for _, pod := range Get() {
 		var status string
@@ -52,19 +52,19 @@ func GetTappedPodsStatus() []shared.TappedPodStatus {
 		}
 
 		isTapped := status == "running"
-		tappedPodsStatus = append(tappedPodsStatus, shared.TappedPodStatus{Name: pod.Name, Namespace: pod.Namespace, IsTapped: isTapped})
+		tappedPodsStatus = append(tappedPodsStatus, models.TappedPodStatus{Name: pod.Name, Namespace: pod.Namespace, IsTapped: isTapped})
 	}
 
 	return tappedPodsStatus
 }
 
-func SetNodeToTappedPodMap(nodeToTappedPodsMap shared.NodeToPodsMap) {
+func SetNodeToTappedPodMap(nodeToTappedPodsMap models.NodeToPodsMap) {
 	summary := nodeToTappedPodsMap.Summary()
 	log.Printf("Setting node to tapped pods map to %v", summary)
 
 	nodeHostToTappedPodsMap = nodeToTappedPodsMap
 }
 
-func GetNodeToTappedPodMap() shared.NodeToPodsMap {
+func GetNodeToTappedPodMap() models.NodeToPodsMap {
 	return nodeHostToTappedPodsMap
 }

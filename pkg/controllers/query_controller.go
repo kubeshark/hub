@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/hub/pkg/db"
 	basenine "github.com/up9inc/basenine/client/go"
 )
 
@@ -18,7 +18,7 @@ func PostValidate(c *gin.Context) {
 	valid := true
 	message := ""
 
-	err := basenine.Validate(shared.BasenineHost, shared.BaseninePort, query)
+	err := basenine.Validate(db.BasenineHost, db.BaseninePort, query)
 	if err != nil {
 		valid = false
 		message = err.Error()

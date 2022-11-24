@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/worker/models"
 )
 
 // these values are used when the config.json file is not present
@@ -14,13 +14,13 @@ const (
 	DefaultDatabasePath         string = "./entries"
 )
 
-var Config *shared.KubesharkAgentConfig
+var Config *models.Config
 
 func LoadConfig() error {
 	if Config != nil {
 		return nil
 	}
-	filePath := fmt.Sprintf("%s%s", shared.ConfigDirPath, shared.ConfigFileName)
+	filePath := fmt.Sprintf("%s%s", models.ConfigDirPath, models.ConfigFileName)
 
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -45,8 +45,8 @@ func applyDefaultConfig() error {
 	return nil
 }
 
-func getDefaultConfig() (*shared.KubesharkAgentConfig, error) {
-	return &shared.KubesharkAgentConfig{
+func getDefaultConfig() (*models.Config, error) {
+	return &models.Config{
 		MaxDBSizeBytes:    defaultMaxDatabaseSizeBytes,
 		AgentDatabasePath: DefaultDatabasePath,
 	}, nil

@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+	"github.com/kubeshark/hub/pkg/db"
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/entries"
 	"github.com/kubeshark/hub/pkg/middlewares"
@@ -21,7 +22,6 @@ import (
 	"github.com/kubeshark/hub/pkg/app"
 	"github.com/kubeshark/hub/pkg/config"
 
-	"github.com/kubeshark/kubeshark/shared"
 	tapApi "github.com/kubeshark/worker/api"
 )
 
@@ -87,7 +87,7 @@ func runInApiServerMode(namespace string) *gin.Engine {
 	if err := config.LoadConfig(); err != nil {
 		log.Fatalf("Error loading config file %v", err)
 	}
-	app.ConfigureBasenineServer(shared.BasenineHost, shared.BaseninePort, config.Config.MaxDBSizeBytes, config.Config.LogLevel, config.Config.InsertionFilter)
+	app.ConfigureBasenineServer(db.BasenineHost, db.BaseninePort, config.Config.MaxDBSizeBytes, config.Config.LogLevel, config.Config.InsertionFilter)
 	api.StartResolving(namespace)
 
 	enableExpFeatureIfNeeded()

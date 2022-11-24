@@ -6,8 +6,8 @@ import (
 
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/entries"
-	"github.com/kubeshark/hub/pkg/models"
 	"github.com/kubeshark/hub/pkg/validation"
+	"github.com/kubeshark/worker/models"
 
 	"github.com/gin-gonic/gin"
 )

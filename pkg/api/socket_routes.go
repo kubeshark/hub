@@ -9,9 +9,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/kubeshark/hub/pkg/models"
 	"github.com/kubeshark/hub/pkg/utils"
 	tapApi "github.com/kubeshark/worker/api"
+	"github.com/kubeshark/worker/models"
 )
 
 var (

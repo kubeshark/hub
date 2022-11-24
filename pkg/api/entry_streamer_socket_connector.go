@@ -3,8 +3,8 @@ package api
 import (
 	"fmt"
 
-	"github.com/kubeshark/hub/pkg/models"
 	tapApi "github.com/kubeshark/worker/api"
+	"github.com/kubeshark/worker/models"
 	basenine "github.com/up9inc/basenine/client/go"
 )
 

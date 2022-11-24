@@ -8,13 +8,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/dependency"
-	"github.com/kubeshark/hub/pkg/models"
 	"github.com/kubeshark/hub/pkg/providers/tappedPods"
 	"github.com/kubeshark/hub/pkg/providers/tappers"
 
 	tapApi "github.com/kubeshark/worker/api"
 
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/worker/models"
 )
 
 type BrowserClient struct {
@@ -118,13 +117,13 @@ func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isTapper bool, mess
 }
 
 func HandleTapperIncomingMessage(message []byte, socketOutChannel chan<- *tapApi.OutputChannelItem, broadcastMessageFunc func([]byte)) {
-	var socketMessageBase shared.WebSocketMessageMetadata
+	var socketMessageBase models.WebSocketMessageMetadata
 	err := json.Unmarshal(message, &socketMessageBase)
 	if err != nil {
 		log.Printf("Could not unmarshal websocket message %v", err)
 	} else {
 		switch socketMessageBase.MessageType {
-		case shared.WebSocketMessageTypeTappedEntry:
+		case models.WebSocketMessageTypeTappedEntry:
 			var tappedEntryMessage models.WebSocketTappedEntryMessage
 			err := json.Unmarshal(message, &tappedEntryMessage)
 			if err != nil {
@@ -133,8 +132,8 @@ func HandleTapperIncomingMessage(message []byte, socketOutChannel chan<- *tapApi
 				// NOTE: This is where the message comes back from the intermediate WebSocket to code.
 				socketOutChannel <- tappedEntryMessage.Data
 			}
-		case shared.WebSocketMessageTypeUpdateStatus:
-			var statusMessage shared.WebSocketStatusMessage
+		case models.WebSocketMessageTypeUpdateStatus:
+			var statusMessage models.WebSocketStatusMessage
 			err := json.Unmarshal(message, &statusMessage)
 			if err != nil {
 				log.Printf("Could not unmarshal message of message type %s %v", socketMessageBase.MessageType, err)

@@ -6,27 +6,27 @@ import (
 	"sync"
 
 	"github.com/kubeshark/hub/pkg/utils"
-	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/worker/models"
 )
 
-const FilePath = shared.DataDirPath + "tappers-status.json"
+const FilePath = models.DataDirPath + "tappers-status.json"
 
 var (
 	lockStatus = &sync.Mutex{}
 	syncOnce   sync.Once
-	status     map[string]*shared.TapperStatus
+	status     map[string]*models.TapperStatus
 
 	lockConnectedCount = &sync.Mutex{}
 	connectedCount     int
 )
 
-func GetStatus() map[string]*shared.TapperStatus {
+func GetStatus() map[string]*models.TapperStatus {
 	initStatus()
 
 	return status
 }
 
-func SetStatus(tapperStatus *shared.TapperStatus) {
+func SetStatus(tapperStatus *models.TapperStatus) {
 	initStatus()
 
 	lockStatus.Lock()
@@ -41,7 +41,7 @@ func ResetStatus() {
 	lockStatus.Lock()
 	defer lockStatus.Unlock()
 
-	status = make(map[string]*shared.TapperStatus)
+	status = make(map[string]*models.TapperStatus)
 
 	saveStatus()
 }
@@ -67,7 +67,7 @@ func Disconnected() {
 func initStatus() {
 	syncOnce.Do(func() {
 		if err := utils.ReadJsonFile(FilePath, &status); err != nil {
-			status = make(map[string]*shared.TapperStatus)
+			status = make(map[string]*models.TapperStatus)
 
 			if !os.IsNotExist(err) {
 				log.Printf("Error reading tappers status from file, err: %v", err)
