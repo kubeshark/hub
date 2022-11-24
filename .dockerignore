@@ -1,0 +1,7 @@
+Dockerfile*
+README.md
+hub
+.git*
+Makefile
+*.out
+.vscode/
