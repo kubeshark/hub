@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"mime"
 	"mime/multipart"
 	"net/textproto"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/chanced/openapi"
 	"github.com/google/uuid"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/nav-inc/datetime"
 
 	"github.com/kubeshark/hub/pkg/har"
@@ -196,33 +196,33 @@ func (g *SpecGen) handlePathObj(entryWithSource *EntryWithSource) (string, error
 	}
 
 	if isExtIgnored(urlParsed.Path) {
-		logger.Log.Debugf("Dropped traffic entry due to ignored extension: %s", urlParsed.Path)
+		log.Printf("Dropped traffic entry due to ignored extension: %s", urlParsed.Path)
 		return "", nil
 	}
 
 	if entry.Request.Method == "OPTIONS" {
-		logger.Log.Debugf("Dropped traffic entry due to its method: %s %s", entry.Request.Method, urlParsed.Path)
+		log.Printf("Dropped traffic entry due to its method: %s %s", entry.Request.Method, urlParsed.Path)
 		return "", nil
 	}
 
 	ctype := getRespCtype(&entry.Response)
 	if isCtypeIgnored(ctype) {
-		logger.Log.Debugf("Dropped traffic entry due to ignored response ctype: %s", ctype)
+		log.Printf("Dropped traffic entry due to ignored response ctype: %s", ctype)
 		return "", nil
 	}
 
 	if entry.Response.Status < 100 {
-		logger.Log.Debugf("Dropped traffic entry due to status<100: %s", entry.StartedDateTime)
+		log.Printf("Dropped traffic entry due to status<100: %s", entry.StartedDateTime)
 		return "", nil
 	}
 
 	if entry.Response.Status == 301 || entry.Response.Status == 308 {
-		logger.Log.Debugf("Dropped traffic entry due to permanent redirect status: %s", entry.StartedDateTime)
+		log.Printf("Dropped traffic entry due to permanent redirect status: %s", entry.StartedDateTime)
 		return "", nil
 	}
 
 	if entry.Response.Status == 502 || entry.Response.Status == 503 || entry.Response.Status == 504 {
-		logger.Log.Debugf("Dropped traffic entry due to temporary server error: %s", entry.StartedDateTime)
+		log.Printf("Dropped traffic entry due to temporary server error: %s", entry.StartedDateTime)
 		return "", nil
 	}
 
@@ -251,7 +251,7 @@ func handleOpObj(entryWithSource *EntryWithSource, pathObj *openapi.PathObj, lim
 	}
 
 	if !isSuccess && wasMissing {
-		logger.Log.Debugf("Dropped traffic entry due to failed status and no known endpoint at: %s", entry.StartedDateTime)
+		log.Printf("Dropped traffic entry due to failed status and no known endpoint at: %s", entry.StartedDateTime)
 		return nil, nil
 	}
 
@@ -362,7 +362,7 @@ func handleRequest(req *har.Request, opObj *openapi.Operation, isSuccess bool, s
 	}
 
 	if len(qs) != len(req.QueryString) {
-		logger.Log.Warningf("QStr params in HAR do not match URL: %s", req.URL)
+		log.Printf("QStr params in HAR do not match URL: %s", req.URL)
 	}
 
 	qstrGW := nvParams{
@@ -447,7 +447,7 @@ func handleRespHeaders(reqHeaders []har.Header, respObj *openapi.ResponseObj, sa
 		exmp := &param.Examples
 		err := fillParamExample(&exmp, pair.Value)
 		if err != nil {
-			logger.Log.Warningf("Failed to add example to a parameter: %s", err)
+			log.Printf("Failed to add example to a parameter: %s", err)
 		}
 		visited[nameGeneral] = param
 
@@ -459,7 +459,7 @@ func handleRespHeaders(reqHeaders []har.Header, respObj *openapi.ResponseObj, sa
 		for name, param := range respObj.Headers {
 			paramObj, err := param.ResolveHeader(headerResolver)
 			if err != nil {
-				logger.Log.Warningf("Failed to resolve param: %s", err)
+				log.Printf("Failed to resolve param: %s", err)
 				continue
 			}
 
@@ -526,7 +526,7 @@ func fillContent(reqResp reqResp, respContent openapi.Content, ctype string, sam
 func handleFormDataUrlencoded(text string, content *openapi.MediaType) {
 	formData, err := url.ParseQuery(text)
 	if err != nil {
-		logger.Log.Warningf("Could not decode urlencoded: %s", err)
+		log.Printf("Could not decode urlencoded: %s", err)
 		return
 	}
 
@@ -597,7 +597,7 @@ type PartWithBody struct {
 func handleFormDataMultipart(text string, content *openapi.MediaType, ctypeParams map[string]string) {
 	boundary, ok := ctypeParams["boundary"]
 	if !ok {
-		logger.Log.Errorf("Multipart header has no boundary")
+		log.Printf("Multipart header has no boundary")
 		return
 	}
 	mpr := multipart.NewReader(strings.NewReader(text), boundary)
@@ -609,14 +609,14 @@ func handleFormDataMultipart(text string, content *openapi.MediaType, ctypeParam
 			break
 		}
 		if err != nil {
-			logger.Log.Errorf("Cannot parse multipart body: %v", err)
+			log.Printf("Cannot parse multipart body: %v", err)
 			break
 		}
 		defer part.Close()
 
 		body, err := io.ReadAll(part)
 		if err != nil {
-			logger.Log.Errorf("Error reading multipart Part %s: %v", part.Header, err)
+			log.Printf("Error reading multipart Part %s: %v", part.Header, err)
 		}
 
 		parts = append(parts, PartWithBody{part: part, body: body})
@@ -655,7 +655,7 @@ func getReqCtype(req *har.Request) (ctype string, params map[string]string) {
 
 	mediaType, params, err := mime.ParseMediaType(ctype)
 	if err != nil {
-		logger.Log.Errorf("Cannot parse Content-Type header %q: %v", ctype, err)
+		log.Printf("Cannot parse Content-Type header %q: %v", ctype, err)
 		return "", map[string]string{}
 	}
 	return mediaType, params

@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/kubeshark/kubeshark/logger"
 )
 
 func BuildHeaders(rawHeaders map[string]interface{}) ([]Header, string, string, string, string, string) {
@@ -163,7 +162,7 @@ func NewResponse(response map[string]interface{}) (harResponse *Response, err er
 			status, err = strconv.Atoi(_status)
 		}
 		if err != nil {
-			logger.Log.Errorf("Failed converting status to int %s (%v,%+v)", err, err, err)
+			log.Printf("Failed converting status to int %s (%v,%+v)", err, err, err)
 			return nil, errors.New("failed converting response status to int for HAR")
 		}
 	}
@@ -184,13 +183,13 @@ func NewResponse(response map[string]interface{}) (harResponse *Response, err er
 func NewEntry(request map[string]interface{}, response map[string]interface{}, startTime time.Time, elapsedTime int64) (*Entry, error) {
 	harRequest, err := NewRequest(request)
 	if err != nil {
-		logger.Log.Errorf("Failed converting request to HAR %s (%v,%+v)", err, err, err)
+		log.Printf("Failed converting request to HAR %s (%v,%+v)", err, err, err)
 		return nil, errors.New("failed converting request to HAR")
 	}
 
 	harResponse, err := NewResponse(response)
 	if err != nil {
-		logger.Log.Errorf("Failed converting response to HAR %s (%v,%+v)", err, err, err)
+		log.Printf("Failed converting response to HAR %s (%v,%+v)", err, err, err)
 		return nil, errors.New("failed converting response to HAR")
 	}
 

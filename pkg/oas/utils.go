@@ -3,13 +3,13 @@ package oas
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"strconv"
 	"strings"
 
 	"github.com/kubeshark/hub/pkg/har"
 
 	"github.com/chanced/openapi"
-	"github.com/kubeshark/kubeshark/logger"
 )
 
 func exampleResolver(ref string) (*openapi.ExampleObj, error) {
@@ -76,7 +76,7 @@ func findParamByName(params *openapi.ParameterList, in openapi.In, name string) 
 		idx = i
 		paramObj, err := param.ResolveParameter(paramResolver)
 		if err != nil {
-			logger.Log.Warningf("Failed to resolve reference: %s", err)
+			log.Printf("Failed to resolve reference: %s", err)
 			continue
 		}
 
@@ -97,7 +97,7 @@ func findHeaderByName(headers *openapi.Headers, name string) *openapi.HeaderObj 
 	for hname, param := range *headers {
 		hdrObj, err := param.ResolveHeader(headerResolver)
 		if err != nil {
-			logger.Log.Warningf("Failed to resolve reference: %s", err)
+			log.Printf("Failed to resolve reference: %s", err)
 			continue
 		}
 
@@ -134,7 +134,7 @@ func handleNameVals(gw nvParams, params **openapi.ParameterList, checkIgnore boo
 		exmp := &param.Examples
 		err := fillParamExample(&exmp, pair.Value)
 		if err != nil {
-			logger.Log.Warningf("Failed to add example to a parameter: %s", err)
+			log.Printf("Failed to add example to a parameter: %s", err)
 		}
 		visited[nameGeneral] = param
 
@@ -146,7 +146,7 @@ func handleNameVals(gw nvParams, params **openapi.ParameterList, checkIgnore boo
 		for _, param := range **params {
 			paramObj, err := param.ResolveParameter(paramResolver)
 			if err != nil {
-				logger.Log.Warningf("Failed to resolve param: %s", err)
+				log.Printf("Failed to resolve param: %s", err)
 				continue
 			}
 			if paramObj.In != gw.In {
@@ -194,7 +194,7 @@ func fillParamExample(param **openapi.Examples, exampleValue string) error {
 		var value string
 		err = json.Unmarshal(exampleObj.Value, &value)
 		if err != nil {
-			logger.Log.Warningf("Failed decoding parameter example into string: %s", err)
+			log.Printf("Failed decoding parameter example into string: %s", err)
 			continue
 		}
 
@@ -223,7 +223,7 @@ func addSchemaExample(existing *openapi.SchemaObj, bodyStr string) {
 			existingExample := ""
 			err := json.Unmarshal(eVal, &existingExample)
 			if err != nil {
-				logger.Log.Debugf("Failed to unmarshal example: %v", eVal)
+				log.Printf("Failed to unmarshal example: %v", eVal)
 				continue
 			}
 
@@ -236,7 +236,7 @@ func addSchemaExample(existing *openapi.SchemaObj, bodyStr string) {
 		if !found {
 			example, err := json.Marshal(bodyStr)
 			if err != nil {
-				logger.Log.Debugf("Failed to marshal example: %v", bodyStr)
+				log.Printf("Failed to marshal example: %v", bodyStr)
 				return
 			}
 			existing.Examples = append(existing.Examples, example)
@@ -484,7 +484,7 @@ func setSampleID(extensions *openapi.Extensions, id string) {
 		}
 		err := (extensions).SetExtension(SampleId, id)
 		if err != nil {
-			logger.Log.Warningf("Failed to set sample ID: %s", err)
+			log.Printf("Failed to set sample ID: %s", err)
 		}
 	}
 }

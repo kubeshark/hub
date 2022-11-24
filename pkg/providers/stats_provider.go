@@ -4,12 +4,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"reflect"
 	"sync"
 	"time"
 
 	"github.com/jinzhu/copier"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/worker/api"
 )
 
@@ -266,7 +266,7 @@ func getFilteredBucketStatsCopy(startTime time.Time, endTime time.Time) BucketSt
 	bucketStatsCopy := BucketStats{}
 	bucketStatsLocker.Lock()
 	if err := copier.Copy(&bucketStatsCopy, bucketsStats); err != nil {
-		logger.Log.Errorf("Error while copying src stats into temporary copied object")
+		log.Printf("Error while copying src stats into temporary copied object")
 		return nil
 	}
 	bucketStatsLocker.Unlock()

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"sort"
@@ -22,7 +23,6 @@ import (
 	"github.com/kubeshark/hub/pkg/resolver"
 	"github.com/kubeshark/hub/pkg/utils"
 
-	"github.com/kubeshark/kubeshark/logger"
 	tapApi "github.com/kubeshark/worker/api"
 )
 
@@ -32,7 +32,7 @@ func StartResolving(namespace string) {
 	errOut := make(chan error, 100)
 	res, err := resolver.NewFromInCluster(errOut, namespace)
 	if err != nil {
-		logger.Log.Infof("error creating k8s resolver %s", err)
+		log.Printf("error creating k8s resolver %s", err)
 		return
 	}
 	ctx := context.Background()
@@ -40,7 +40,7 @@ func StartResolving(namespace string) {
 	go func() {
 		for {
 			err := <-errOut
-			logger.Log.Infof("name resolving error %s", err)
+			log.Printf("name resolving error %s", err)
 		}
 	}()
 
@@ -58,7 +58,7 @@ func StartReadingEntries(harChannel <-chan *tapApi.OutputChannelItem, workingDir
 
 func startReadingFiles(workingDir string) {
 	if err := os.MkdirAll(workingDir, os.ModePerm); err != nil {
-		logger.Log.Errorf("Failed to make dir: %s, err: %v", workingDir, err)
+		log.Printf("Failed to make dir: %s, err: %v", workingDir, err)
 		return
 	}
 
@@ -75,7 +75,7 @@ func startReadingFiles(workingDir string) {
 		sort.Sort(utils.ByModTime(harFiles))
 
 		if len(harFiles) == 0 {
-			logger.Log.Infof("Waiting for new files")
+			log.Printf("Waiting for new files")
 			time.Sleep(3 * time.Second)
 			continue
 		}
@@ -110,13 +110,13 @@ func startReadingChannel(outputItems <-chan *tapApi.OutputChannelItem, extension
 
 		data, err := json.Marshal(kubesharkEntry)
 		if err != nil {
-			logger.Log.Errorf("Error while marshaling entry: %v", err)
+			log.Printf("Error while marshaling entry: %v", err)
 			continue
 		}
 
 		entryInserter := dependency.GetInstance(dependency.EntriesInserter).(EntryInserter)
 		if err := entryInserter.Insert(kubesharkEntry); err != nil {
-			logger.Log.Errorf("Error inserting entry, err: %v", err)
+			log.Printf("Error inserting entry, err: %v", err)
 		}
 
 		summary := extension.Dissector.Summarize(kubesharkEntry)
@@ -135,7 +135,7 @@ func resolveIP(connectionInfo *tapApi.ConnectionInfo) (resolvedSource string, re
 		unresolvedSource := connectionInfo.ClientIP
 		resolvedSourceObject := k8sResolver.Resolve(unresolvedSource)
 		if resolvedSourceObject == nil {
-			logger.Log.Debugf("Cannot find resolved name to source: %s", unresolvedSource)
+			log.Printf("Cannot find resolved name to source: %s", unresolvedSource)
 			if os.Getenv("SKIP_NOT_RESOLVED_SOURCE") == "1" {
 				return
 			}
@@ -147,7 +147,7 @@ func resolveIP(connectionInfo *tapApi.ConnectionInfo) (resolvedSource string, re
 		unresolvedDestination := fmt.Sprintf("%s:%s", connectionInfo.ServerIP, connectionInfo.ServerPort)
 		resolvedDestinationObject := k8sResolver.Resolve(unresolvedDestination)
 		if resolvedDestinationObject == nil {
-			logger.Log.Debugf("Cannot find resolved name to dest: %s", unresolvedDestination)
+			log.Printf("Cannot find resolved name to dest: %s", unresolvedDestination)
 			if os.Getenv("SKIP_NOT_RESOLVED_DEST") == "1" {
 				return
 			}

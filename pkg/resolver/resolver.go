@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
-	"github.com/kubeshark/kubeshark/logger"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 
 	cmap "github.com/orcaman/concurrent-map"
@@ -170,12 +170,12 @@ func (resolver *Resolver) saveResolvedName(key string, resolved string, namespac
 	if eventType == watch.Deleted {
 		resolver.nameMap.Remove(resolved)
 		resolver.nameMap.Remove(key)
-		logger.Log.Infof("setting %s=nil", key)
+		log.Printf("setting %s=nil", key)
 	} else {
 
 		resolver.nameMap.Set(key, &ResolvedObjectInfo{FullAddress: resolved, Namespace: namespace})
 		resolver.nameMap.Set(resolved, &ResolvedObjectInfo{FullAddress: resolved, Namespace: namespace})
-		logger.Log.Infof("setting %s=%s", key, resolved)
+		log.Printf("setting %s=%s", key, resolved)
 	}
 }
 
@@ -196,7 +196,7 @@ func (resolver *Resolver) infiniteErrorHandleRetryFunc(ctx context.Context, fun 
 			var statusError *k8serrors.StatusError
 			if errors.As(err, &statusError) {
 				if statusError.ErrStatus.Reason == metav1.StatusReasonForbidden {
-					logger.Log.Infof("Resolver loop encountered permission error, aborting event listening - %v", err)
+					log.Printf("Resolver loop encountered permission error, aborting event listening - %v", err)
 					return
 				}
 			}

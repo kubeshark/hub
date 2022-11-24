@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -14,13 +15,11 @@ import (
 	"testing"
 
 	"github.com/kubeshark/hub/pkg/har"
-
-	"github.com/kubeshark/kubeshark/logger"
 )
 
 func getFiles(baseDir string) (result []string, err error) {
 	result = make([]string, 0)
-	logger.Log.Infof("Reading files from tree: %s", baseDir)
+	log.Printf("Reading files from tree: %s", baseDir)
 
 	inputs := []string{baseDir}
 
@@ -54,7 +53,7 @@ func getFiles(baseDir string) (result []string, err error) {
 		return fileSize(result[i]) < fileSize(result[j])
 	})
 
-	logger.Log.Infof("Got files: %d", len(result))
+	log.Printf("Got files: %d", len(result))
 	return result, err
 }
 
@@ -71,21 +70,21 @@ func feedEntries(fromFiles []string, isSync bool, gen *defaultOasGenerator) (cou
 	badFiles := make([]string, 0)
 	cnt := uint(0)
 	for _, file := range fromFiles {
-		logger.Log.Info("Processing file: " + file)
+		log.Print("Processing file: " + file)
 		ext := strings.ToLower(filepath.Ext(file))
 		eCnt := uint(0)
 		switch ext {
 		case ".har":
 			eCnt, err = feedFromHAR(file, isSync, gen)
 			if err != nil {
-				logger.Log.Warning("Failed processing file: " + err.Error())
+				log.Print("Failed processing file: " + err.Error())
 				badFiles = append(badFiles, file)
 				continue
 			}
 		case ".ldjson":
 			eCnt, err = feedFromLDJSON(file, isSync, gen)
 			if err != nil {
-				logger.Log.Warning("Failed processing file: " + err.Error())
+				log.Print("Failed processing file: " + err.Error())
 				badFiles = append(badFiles, file)
 				continue
 			}
@@ -96,7 +95,7 @@ func feedEntries(fromFiles []string, isSync bool, gen *defaultOasGenerator) (cou
 	}
 
 	for _, f := range badFiles {
-		logger.Log.Infof("Bad file: %s", f)
+		log.Printf("Bad file: %s", f)
 	}
 
 	return cnt, nil
@@ -133,16 +132,16 @@ func feedFromHAR(file string, isSync bool, gen *defaultOasGenerator) (uint, erro
 func feedEntry(entry *har.Entry, source string, file string, gen *defaultOasGenerator, cnt string) {
 	entry.Comment = file
 	if entry.Response.Status == 302 {
-		logger.Log.Debugf("Dropped traffic entry due to permanent redirect status: %s", entry.StartedDateTime)
+		log.Printf("Dropped traffic entry due to permanent redirect status: %s", entry.StartedDateTime)
 	}
 
 	if strings.Contains(entry.Request.URL, "some") { // for debugging
-		logger.Log.Debugf("Interesting: %s", entry.Request.URL)
+		log.Printf("Interesting: %s", entry.Request.URL)
 	}
 
 	u, err := url.Parse(entry.Request.URL)
 	if err != nil {
-		logger.Log.Errorf("Failed to parse entry URL: %v, err: %v", entry.Request.URL, err)
+		log.Printf("Failed to parse entry URL: %v, err: %v", entry.Request.URL, err)
 	}
 
 	ews := EntryWithSource{Entry: *entry, Source: source, Destination: u.Host, Id: cnt}
@@ -189,7 +188,7 @@ func feedFromLDJSON(file string, isSync bool, gen *defaultOasGenerator) (uint, e
 			var entry har.Entry
 			err := json.Unmarshal([]byte(line), &entry)
 			if err != nil {
-				logger.Log.Warningf("Failed decoding entry: %s", line)
+				log.Printf("Failed decoding entry: %s", line)
 			} else {
 				cnt += 1
 				feedEntry(&entry, source, file, gen, fmt.Sprintf("%024d", cnt))

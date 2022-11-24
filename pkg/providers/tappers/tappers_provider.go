@@ -1,11 +1,11 @@
 package tappers
 
 import (
+	"log"
 	"os"
 	"sync"
 
 	"github.com/kubeshark/hub/pkg/utils"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 )
 
@@ -70,7 +70,7 @@ func initStatus() {
 			status = make(map[string]*shared.TapperStatus)
 
 			if !os.IsNotExist(err) {
-				logger.Log.Errorf("Error reading tappers status from file, err: %v", err)
+				log.Printf("Error reading tappers status from file, err: %v", err)
 			}
 		}
 	})
@@ -78,6 +78,6 @@ func initStatus() {
 
 func saveStatus() {
 	if err := utils.SaveJsonFile(FilePath, status); err != nil {
-		logger.Log.Errorf("Error saving tappers status, err: %v", err)
+		log.Printf("Error saving tappers status, err: %v", err)
 	}
 }

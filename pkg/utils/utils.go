@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/kubeshark/logger"
 )
 
 var (
@@ -33,26 +33,26 @@ func StartServer(app *gin.Engine, port int) {
 
 	go func() {
 		<-signals
-		logger.Log.Infof("Shutting down...")
+		log.Printf("Shutting down...")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		err := srv.Shutdown(ctx)
 		if err != nil {
-			logger.Log.Errorf("%v", err)
+			log.Printf("%v", err)
 		}
 		os.Exit(0)
 	}()
 
 	// Run server.
-	logger.Log.Infof("Starting the server...")
+	log.Printf("Starting the server...")
 	if err := app.Run(fmt.Sprintf(":%d", port)); err != nil {
-		logger.Log.Errorf("Server is not running! Reason: %v", err)
+		log.Printf("Server is not running! Reason: %v", err)
 	}
 }
 
 func CheckErr(e error) {
 	if e != nil {
-		logger.Log.Errorf("%v", e)
+		log.Printf("%v", e)
 	}
 }
 

@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/kubeshark/hub/pkg/models"
 	"github.com/kubeshark/hub/pkg/utils"
-	"github.com/kubeshark/kubeshark/logger"
 	tapApi "github.com/kubeshark/worker/api"
 )
 
@@ -84,7 +84,7 @@ func WebSocketRoutes(app *gin.Engine, eventHandlers EventHandlers) {
 func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isTapper bool) {
 	ws, err := websocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		logger.Log.Errorf("failed to set websocket upgrade: %v", err)
+		log.Printf("failed to set websocket upgrade: %v", err)
 		return
 	}
 
@@ -107,16 +107,16 @@ func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isTapper bool
 	startTimeBytes, _ := models.CreateWebsocketStartTimeMessage(utils.StartTime)
 
 	if err = SendToSocket(socketId, startTimeBytes); err != nil {
-		logger.Log.Error(err)
+		log.Print(err)
 	}
 
 	for {
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
 			if _, ok := err.(*websocket.CloseError); ok {
-				logger.Log.Debugf("received websocket close message, socket id: %d", socketId)
+				log.Printf("received websocket close message, socket id: %d", socketId)
 			} else {
-				logger.Log.Errorf("error reading message, socket id: %d, error: %v", socketId, err)
+				log.Printf("error reading message, socket id: %d, error: %v", socketId, err)
 			}
 
 			break
@@ -155,7 +155,7 @@ func SendToSocket(socketId int, message []byte) error {
 func socketCleanup(socketId int, socketConnection *SocketConnection) {
 	err := socketConnection.connection.Close()
 	if err != nil {
-		logger.Log.Errorf("error closing socket connection for socket id %d: %v", socketId, err)
+		log.Printf("error closing socket connection for socket id %d: %v", socketId, err)
 	}
 
 	websocketIdsLock.Lock()

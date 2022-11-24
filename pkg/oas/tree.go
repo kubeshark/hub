@@ -2,13 +2,13 @@ package oas
 
 import (
 	"encoding/json"
+	"log"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/chanced/openapi"
-	"github.com/kubeshark/kubeshark/logger"
 )
 
 type NodePath = []string
@@ -30,13 +30,13 @@ func (n *Node) getOrSet(path NodePath, existingPathObj *openapi.PathObj, sampleI
 	potentialMatrix := strings.SplitN(pathChunk, ";", 2)
 	if len(potentialMatrix) > 1 {
 		pathChunk = potentialMatrix[0]
-		logger.Log.Warningf("URI matrix params are not supported: %s", potentialMatrix[1])
+		log.Printf("URI matrix params are not supported: %s", potentialMatrix[1])
 	}
 
 	chunkIsParam := strings.HasPrefix(pathChunk, "{") && strings.HasSuffix(pathChunk, "}")
 	pathChunk, err := url.PathUnescape(pathChunk)
 	if err != nil {
-		logger.Log.Warningf("URI segment is not correctly encoded: %s", pathChunk)
+		log.Printf("URI segment is not correctly encoded: %s", pathChunk)
 		// any side effects on continuing?
 	}
 
@@ -80,7 +80,7 @@ func (n *Node) getOrSet(path NodePath, existingPathObj *openapi.PathObj, sampleI
 		exmp := &node.pathParam.Examples
 		err := fillParamExample(&exmp, pathChunk)
 		if err != nil {
-			logger.Log.Warningf("Failed to add example to a parameter: %s", err)
+			log.Printf("Failed to add example to a parameter: %s", err)
 		}
 
 		if len(*exmp) >= 3 && node.pathParam.Schema.Pattern == nil { // is it enough to decide on 2 samples?
@@ -110,7 +110,7 @@ func getPatternFromExamples(exmp *openapi.Examples) *openapi.Regexp {
 		var value string
 		err = json.Unmarshal(exampleObj.Value, &value)
 		if err != nil {
-			logger.Log.Warningf("Failed decoding parameter example into string: %s", err)
+			log.Printf("Failed decoding parameter example into string: %s", err)
 			continue
 		}
 		strs = append(strs, value)

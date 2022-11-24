@@ -1,13 +1,13 @@
 package tappedPods
 
 import (
+	"log"
 	"os"
 	"strings"
 	"sync"
 
 	"github.com/kubeshark/hub/pkg/providers/tappers"
 	"github.com/kubeshark/hub/pkg/utils"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 )
 
@@ -24,7 +24,7 @@ func Get() []*shared.PodInfo {
 	syncOnce.Do(func() {
 		if err := utils.ReadJsonFile(FilePath, &tappedPods); err != nil {
 			if !os.IsNotExist(err) {
-				logger.Log.Errorf("Error reading tapped pods from file, err: %v", err)
+				log.Printf("Error reading tapped pods from file, err: %v", err)
 			}
 		}
 	})
@@ -38,7 +38,7 @@ func Set(tappedPodsToSet []*shared.PodInfo) {
 
 	tappedPods = tappedPodsToSet
 	if err := utils.SaveJsonFile(FilePath, tappedPods); err != nil {
-		logger.Log.Errorf("Error saving tapped pods, err: %v", err)
+		log.Printf("Error saving tapped pods, err: %v", err)
 	}
 }
 
@@ -60,7 +60,7 @@ func GetTappedPodsStatus() []shared.TappedPodStatus {
 
 func SetNodeToTappedPodMap(nodeToTappedPodsMap shared.NodeToPodsMap) {
 	summary := nodeToTappedPodsMap.Summary()
-	logger.Log.Debugf("Setting node to tapped pods map to %v", summary)
+	log.Printf("Setting node to tapped pods map to %v", summary)
 
 	nodeHostToTappedPodsMap = nodeToTappedPodsMap
 }

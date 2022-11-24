@@ -2,10 +2,9 @@ package har
 
 import (
 	"encoding/base64"
+	"log"
 	"time"
 	"unicode/utf8"
-
-	"github.com/kubeshark/kubeshark/logger"
 )
 
 /*
@@ -294,7 +293,7 @@ func b64Decoded(enc string, text string) (isBinary bool, asBytes []byte, asStrin
 	if enc == "base64" {
 		decoded, err := base64.StdEncoding.DecodeString(text)
 		if err != nil {
-			logger.Log.Warningf("Failed to decode content as base64: %s", text)
+			log.Printf("Failed to decode content as base64: %s", text)
 			return false, []byte(text), text
 		}
 		valid := utf8.Valid(decoded)

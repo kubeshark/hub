@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,6 @@ import (
 
 	tapApi "github.com/kubeshark/worker/api"
 
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 )
 
@@ -32,7 +32,7 @@ type RoutesEventHandlers struct {
 
 func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isTapper bool) {
 	if isTapper {
-		logger.Log.Infof("Websocket event - Tapper connected, socket ID: %d", socketId)
+		log.Printf("Websocket event - Tapper connected, socket ID: %d", socketId)
 		tappers.Connected()
 
 		socketListLock.Lock()
@@ -42,7 +42,7 @@ func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isT
 		nodeToTappedPodMap := tappedPods.GetNodeToTappedPodMap()
 		SendTappedPods(socketId, nodeToTappedPodMap)
 	} else {
-		logger.Log.Infof("Websocket event - Browser socket connected, socket ID: %d", socketId)
+		log.Printf("Websocket event - Browser socket connected, socket ID: %d", socketId)
 
 		socketListLock.Lock()
 		browserClients[socketId] = &BrowserClient{}
@@ -54,14 +54,14 @@ func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isT
 
 func (h *RoutesEventHandlers) WebSocketDisconnect(socketId int, isTapper bool) {
 	if isTapper {
-		logger.Log.Infof("Websocket event - Tapper disconnected, socket ID:  %d", socketId)
+		log.Printf("Websocket event - Tapper disconnected, socket ID:  %d", socketId)
 		tappers.Disconnected()
 
 		socketListLock.Lock()
 		removeSocketUUIDFromTapperSlice(socketId)
 		socketListLock.Unlock()
 	} else {
-		logger.Log.Infof("Websocket event - Browser socket disconnected, socket ID:  %d", socketId)
+		log.Printf("Websocket event - Browser socket disconnected, socket ID:  %d", socketId)
 		socketListLock.Lock()
 		if browserClients[socketId] != nil && browserClients[socketId].dataStreamCancelFunc != nil {
 			browserClients[socketId].dataStreamCancelFunc()
@@ -75,7 +75,7 @@ func BroadcastToBrowserClients(message []byte) {
 	for socketId := range browserClients {
 		go func(socketId int) {
 			if err := SendToSocket(socketId, message); err != nil {
-				logger.Log.Error(err)
+				log.Print(err)
 			}
 		}(socketId)
 	}
@@ -85,7 +85,7 @@ func BroadcastToTapperClients(message []byte) {
 	for _, socketId := range tapperClientSocketUUIDs {
 		go func(socketId int) {
 			if err := SendToSocket(socketId, message); err != nil {
-				logger.Log.Error(err)
+				log.Print(err)
 			}
 		}(socketId)
 	}
@@ -99,7 +99,7 @@ func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isTapper bool, mess
 		if browserClients[socketId] != nil && browserClients[socketId].dataStreamCancelFunc == nil {
 			var params WebSocketParams
 			if err := json.Unmarshal(message, &params); err != nil {
-				logger.Log.Errorf("Error: %v", socketId, err)
+				log.Printf("Error: %v", socketId, err)
 				return
 			}
 
@@ -108,7 +108,7 @@ func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isTapper bool, mess
 			err := entriesStreamer.Get(ctx, socketId, &params)
 
 			if err != nil {
-				logger.Log.Errorf("error initializing basenine stream for browser socket %d %+v", socketId, err)
+				log.Printf("error initializing basenine stream for browser socket %d %+v", socketId, err)
 				cancelFunc()
 			} else {
 				browserClients[socketId].dataStreamCancelFunc = cancelFunc
@@ -121,14 +121,14 @@ func HandleTapperIncomingMessage(message []byte, socketOutChannel chan<- *tapApi
 	var socketMessageBase shared.WebSocketMessageMetadata
 	err := json.Unmarshal(message, &socketMessageBase)
 	if err != nil {
-		logger.Log.Infof("Could not unmarshal websocket message %v", err)
+		log.Printf("Could not unmarshal websocket message %v", err)
 	} else {
 		switch socketMessageBase.MessageType {
 		case shared.WebSocketMessageTypeTappedEntry:
 			var tappedEntryMessage models.WebSocketTappedEntryMessage
 			err := json.Unmarshal(message, &tappedEntryMessage)
 			if err != nil {
-				logger.Log.Infof("Could not unmarshal message of message type %s %v", socketMessageBase.MessageType, err)
+				log.Printf("Could not unmarshal message of message type %s %v", socketMessageBase.MessageType, err)
 			} else {
 				// NOTE: This is where the message comes back from the intermediate WebSocket to code.
 				socketOutChannel <- tappedEntryMessage.Data
@@ -137,12 +137,12 @@ func HandleTapperIncomingMessage(message []byte, socketOutChannel chan<- *tapApi
 			var statusMessage shared.WebSocketStatusMessage
 			err := json.Unmarshal(message, &statusMessage)
 			if err != nil {
-				logger.Log.Infof("Could not unmarshal message of message type %s %v", socketMessageBase.MessageType, err)
+				log.Printf("Could not unmarshal message of message type %s %v", socketMessageBase.MessageType, err)
 			} else {
 				broadcastMessageFunc(message)
 			}
 		default:
-			logger.Log.Infof("Received socket message of type %s for which no handlers are defined", socketMessageBase.MessageType)
+			log.Printf("Received socket message of type %s for which no handlers are defined", socketMessageBase.MessageType)
 		}
 	}
 }

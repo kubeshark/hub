@@ -32,7 +32,7 @@ Now you will be able to import `github.com/kubeshark/kubeshark/resolver` in any 
 errOut := make(chan error, 100)
 k8sResolver, err := resolver.NewFromOutOfCluster("", errOut)
 if err != nil {
-    logger.Log.Errorf("error creating k8s resolver %s", err)
+    log.Printf("error creating k8s resolver %s", err)
 }
 
 ctx, cancel := context.WithCancel(context.Background())
@@ -40,15 +40,15 @@ k8sResolver.Start(ctx)
 
 resolvedName := k8sResolver.Resolve("10.107.251.91") // will always return `nil` in real scenarios as the internal map takes a moment to populate after `Start` is called
 if resolvedName != nil {
-    logger.Log.Errorf("resolved 10.107.251.91=%s", *resolvedName)
+    log.Printf("resolved 10.107.251.91=%s", *resolvedName)
 } else {
-    logger.Log.Error("Could not find a resolved name for 10.107.251.91")
+    log.Print("Could not find a resolved name for 10.107.251.91")
 }
 
 for {
     select {
         case err := <- errOut:
-            logger.Log.Errorf("name resolving error %s", err)
+            log.Printf("name resolving error %s", err)
     }
 }
 ```

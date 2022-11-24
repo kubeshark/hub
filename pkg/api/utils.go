@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/kubeshark/hub/pkg/providers/tappedPods"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 )
 
@@ -13,7 +13,7 @@ func BroadcastTappedPodsStatus() {
 
 	message := shared.CreateWebSocketStatusMessage(tappedPodsStatus)
 	if jsonBytes, err := json.Marshal(message); err != nil {
-		logger.Log.Errorf("Could not Marshal message %v", err)
+		log.Printf("Could not Marshal message %v", err)
 	} else {
 		BroadcastToBrowserClients(jsonBytes)
 	}
@@ -22,10 +22,10 @@ func BroadcastTappedPodsStatus() {
 func SendTappedPods(socketId int, nodeToTappedPodMap shared.NodeToPodsMap) {
 	message := shared.CreateWebSocketTappedPodsMessage(nodeToTappedPodMap)
 	if jsonBytes, err := json.Marshal(message); err != nil {
-		logger.Log.Errorf("Could not Marshal message %v", err)
+		log.Printf("Could not Marshal message %v", err)
 	} else {
 		if err := SendToSocket(socketId, jsonBytes); err != nil {
-			logger.Log.Error(err)
+			log.Print(err)
 		}
 	}
 }
@@ -33,7 +33,7 @@ func SendTappedPods(socketId int, nodeToTappedPodMap shared.NodeToPodsMap) {
 func BroadcastTappedPodsToTappers(nodeToTappedPodMap shared.NodeToPodsMap) {
 	message := shared.CreateWebSocketTappedPodsMessage(nodeToTappedPodMap)
 	if jsonBytes, err := json.Marshal(message); err != nil {
-		logger.Log.Errorf("Could not Marshal message %v", err)
+		log.Printf("Could not Marshal message %v", err)
 	} else {
 		BroadcastToTapperClients(jsonBytes)
 	}

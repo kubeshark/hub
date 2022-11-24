@@ -2,11 +2,11 @@ package oas
 
 import (
 	"encoding/json"
+	"log"
 	"net/url"
 	"sync"
 
 	"github.com/kubeshark/hub/pkg/har"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/worker/api"
 )
 
@@ -35,7 +35,7 @@ type defaultOasGenerator struct {
 func GetDefaultOasGeneratorInstance(maxExampleLen int) *defaultOasGenerator {
 	syncOnce.Do(func() {
 		instance = NewDefaultOasGenerator(maxExampleLen)
-		logger.Log.Debug("OAS Generator Initialized")
+		log.Print("OAS Generator Initialized")
 	})
 	return instance
 }
@@ -66,13 +66,13 @@ func (g *defaultOasGenerator) HandleEntry(kubesharkEntry *api.Entry) {
 	if kubesharkEntry.Protocol.Name == "http" {
 		dest := kubesharkEntry.Destination.Name
 		if dest == "" {
-			logger.Log.Debugf("OAS: Unresolved entry %d", kubesharkEntry.Id)
+			log.Printf("OAS: Unresolved entry %d", kubesharkEntry.Id)
 			return
 		}
 
 		entry, err := har.NewEntry(kubesharkEntry.Request, kubesharkEntry.Response, kubesharkEntry.StartTime, kubesharkEntry.ElapsedTime)
 		if err != nil {
-			logger.Log.Warningf("Failed to turn KubesharkEntry %d into HAR Entry: %s", kubesharkEntry.Id, err)
+			log.Printf("Failed to turn KubesharkEntry %d into HAR Entry: %s", kubesharkEntry.Id, err)
 			return
 		}
 
@@ -85,7 +85,7 @@ func (g *defaultOasGenerator) HandleEntry(kubesharkEntry *api.Entry) {
 
 		g.handleHARWithSource(entryWSource)
 	} else {
-		logger.Log.Debugf("OAS: Unsupported protocol in entry %d: %s", kubesharkEntry.Id, kubesharkEntry.Protocol.Name)
+		log.Printf("OAS: Unsupported protocol in entry %d: %s", kubesharkEntry.Id, kubesharkEntry.Protocol.Name)
 	}
 }
 
@@ -97,20 +97,20 @@ func (g *defaultOasGenerator) handleHARWithSource(entryWSource *EntryWithSource)
 	if err != nil {
 		txt, suberr := json.Marshal(entry)
 		if suberr == nil {
-			logger.Log.Debugf("Problematic entry: %s", txt)
+			log.Printf("Problematic entry: %s", txt)
 		}
 
-		logger.Log.Warningf("Failed processing entry %d: %s", entryWSource.Id, err)
+		log.Printf("Failed processing entry %d: %s", entryWSource.Id, err)
 		return
 	}
 
-	logger.Log.Debugf("Handled entry %s as opId: %s", entryWSource.Id, opId) // TODO: set opId back to entry?
+	log.Printf("Handled entry %s as opId: %s", entryWSource.Id, opId) // TODO: set opId back to entry?
 }
 
 func (g *defaultOasGenerator) getGen(dest string, urlStr string) *SpecGen {
 	u, err := url.Parse(urlStr)
 	if err != nil {
-		logger.Log.Errorf("Failed to parse entry URL: %v, err: %v", urlStr, err)
+		log.Printf("Failed to parse entry URL: %v, err: %v", urlStr, err)
 	}
 
 	val, found := g.serviceSpecs.Load(dest)

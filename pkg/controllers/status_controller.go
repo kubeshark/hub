@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,7 +16,6 @@ import (
 	"github.com/kubeshark/hub/pkg/providers/tappedPods"
 	"github.com/kubeshark/hub/pkg/providers/tappers"
 	"github.com/kubeshark/hub/pkg/validation"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 	"github.com/kubeshark/kubeshark/shared/kubernetes"
 )
@@ -43,7 +43,7 @@ func PostTappedPods(c *gin.Context) {
 
 	podInfos := kubernetes.GetPodInfosForPods(requestTappedPods)
 
-	logger.Log.Infof("[Status] POST request: %d tapped pods", len(requestTappedPods))
+	log.Printf("[Status] POST request: %d tapped pods", len(requestTappedPods))
 	tappedPods.Set(podInfos)
 	api.BroadcastTappedPodsStatus()
 
@@ -64,7 +64,7 @@ func PostTapperStatus(c *gin.Context) {
 		return
 	}
 
-	logger.Log.Infof("[Status] POST request, tapper status: %v", tapperStatus)
+	log.Printf("[Status] POST request, tapper status: %v", tapperStatus)
 	tappers.SetStatus(tapperStatus)
 	api.BroadcastTappedPodsStatus()
 }

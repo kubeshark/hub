@@ -3,6 +3,7 @@ package oas
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/chanced/openapi"
 	"github.com/kubeshark/hub/pkg/har"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/wI2L/jsondiff"
 )
 
@@ -41,7 +41,6 @@ func outputSpec(label string, spec *openapi.OpenAPI, t *testing.T) string {
 }
 
 func TestEntries(t *testing.T) {
-	//logger.InitLoggerStd(logging.INFO) causes race condition
 	files, err := getFiles("./test_artifacts/")
 	if err != nil {
 		t.Log(err)
@@ -118,7 +117,7 @@ func TestEntries(t *testing.T) {
 		return true
 	})
 
-	logger.Log.Infof("Total entries: %d", cnt)
+	log.Printf("Total entries: %d", cnt)
 }
 
 func TestFileSingle(t *testing.T) {
@@ -129,7 +128,7 @@ func TestFileSingle(t *testing.T) {
 	files := []string{file}
 	cnt, err := feedEntries(files, true, gen)
 	if err != nil {
-		logger.Log.Warning("Failed processing file: " + err.Error())
+		log.Print("Failed processing file: " + err.Error())
 		t.Fail()
 	}
 
@@ -183,7 +182,7 @@ func TestFileSingle(t *testing.T) {
 		return true
 	})
 
-	logger.Log.Infof("Processed entries: %d", cnt)
+	log.Printf("Processed entries: %d", cnt)
 }
 
 func loadStartingOAS(file string, label string, specs *sync.Map) {

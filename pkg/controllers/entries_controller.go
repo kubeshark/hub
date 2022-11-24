@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/kubeshark/hub/pkg/dependency"
@@ -9,13 +10,11 @@ import (
 	"github.com/kubeshark/hub/pkg/validation"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/kubeshark/kubeshark/logger"
 )
 
 func HandleEntriesError(c *gin.Context, err error) bool {
 	if err != nil {
-		logger.Log.Errorf("Error getting entry: %v", err)
+		log.Printf("Error getting entry: %v", err)
 		_ = c.Error(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error":     true,

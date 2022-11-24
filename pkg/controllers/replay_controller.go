@@ -1,13 +1,13 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/replay"
 	"github.com/kubeshark/hub/pkg/validation"
-	"github.com/kubeshark/kubeshark/logger"
 )
 
 const (
@@ -15,20 +15,20 @@ const (
 )
 
 func ReplayRequest(c *gin.Context) {
-	logger.Log.Debug("Starting replay")
+	log.Print("Starting replay")
 	replayDetails := &replay.Details{}
 	if err := c.Bind(replayDetails); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	logger.Log.Debugf("Validating replay, %v", replayDetails)
+	log.Printf("Validating replay, %v", replayDetails)
 	if err := validation.Validate(replayDetails); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	logger.Log.Debug("Executing replay, %v", replayDetails)
+	log.Print("Executing replay, %v", replayDetails)
 	result := replay.ExecuteRequest(replayDetails, replayTimeout)
 	c.JSON(http.StatusOK, result)
 }

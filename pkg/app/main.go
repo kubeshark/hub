@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/kubeshark/hub/pkg/api"
 	"github.com/kubeshark/hub/pkg/providers"
 	"github.com/kubeshark/hub/pkg/utils"
-	"github.com/kubeshark/kubeshark/logger"
 	tapApi "github.com/kubeshark/worker/api"
 	amqpExt "github.com/kubeshark/worker/extensions/amqp"
 	httpExt "github.com/kubeshark/worker/extensions/http"
@@ -90,11 +90,11 @@ func ConfigureBasenineServer(host string, port string, dbSize int64, logLevel lo
 		wait.WithDeadline(20*time.Second),
 		wait.WithDebug(logLevel == logging.DEBUG),
 	).Do([]string{fmt.Sprintf("%s:%s", host, port)}) {
-		logger.Log.Panicf("Basenine is not available!")
+		log.Panicf("Basenine is not available!")
 	}
 
 	if err := basenine.Limit(host, port, dbSize); err != nil {
-		logger.Log.Panicf("Error while limiting database size: %v", err)
+		log.Panicf("Error while limiting database size: %v", err)
 	}
 
 	// Define the macros
@@ -102,14 +102,14 @@ func ConfigureBasenineServer(host string, port string, dbSize int64, logLevel lo
 		macros := extension.Dissector.Macros()
 		for macro, expanded := range macros {
 			if err := basenine.Macro(host, port, macro, expanded); err != nil {
-				logger.Log.Panicf("Error while adding a macro: %v", err)
+				log.Panicf("Error while adding a macro: %v", err)
 			}
 		}
 	}
 
 	// Set the insertion filter that comes from the config
 	if err := basenine.InsertionFilter(host, port, insertionFilter); err != nil {
-		logger.Log.Errorf("Error while setting the insertion filter: %v", err)
+		log.Printf("Error while setting the insertion filter: %v", err)
 	}
 
 	utils.StartTime = time.Now().UnixNano() / int64(time.Millisecond)

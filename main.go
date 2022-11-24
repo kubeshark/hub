@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,10 +21,8 @@ import (
 	"github.com/kubeshark/hub/pkg/app"
 	"github.com/kubeshark/hub/pkg/config"
 
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 	tapApi "github.com/kubeshark/worker/api"
-	"github.com/op/go-logging"
 )
 
 var namespace = flag.String("namespace", "", "Resolve IPs if they belong to resources in this namespace (default is all)")
@@ -32,8 +31,6 @@ var profiler = flag.Bool("profiler", false, "Run pprof server")
 
 func main() {
 	initializeDependencies()
-	logLevel := determineLogLevel()
-	logger.InitLoggerStd(logLevel)
 	flag.Parse()
 
 	app.LoadExtensions()
@@ -50,7 +47,7 @@ func main() {
 	signal.Notify(signalChan, os.Interrupt)
 	<-signalChan
 
-	logger.Log.Info("Exiting")
+	log.Print("Exiting")
 }
 
 func hostApi(socketHarOutputChannel chan<- *tapApi.OutputChannelItem) *gin.Engine {
@@ -88,7 +85,7 @@ func hostApi(socketHarOutputChannel chan<- *tapApi.OutputChannelItem) *gin.Engin
 
 func runInApiServerMode(namespace string) *gin.Engine {
 	if err := config.LoadConfig(); err != nil {
-		logger.Log.Fatalf("Error loading config file %v", err)
+		log.Fatalf("Error loading config file %v", err)
 	}
 	app.ConfigureBasenineServer(shared.BasenineHost, shared.BaseninePort, config.Config.MaxDBSizeBytes, config.Config.LogLevel, config.Config.InsertionFilter)
 	api.StartResolving(namespace)
@@ -107,15 +104,6 @@ func enableExpFeatureIfNeeded() {
 		serviceMapGenerator := dependency.GetInstance(dependency.ServiceMapGeneratorDependency).(servicemap.ServiceMap)
 		serviceMapGenerator.Enable()
 	}
-}
-
-func determineLogLevel() (logLevel logging.Level) {
-	logLevel, err := logging.LogLevel(os.Getenv(shared.LogLevelEnvVar))
-	if err != nil {
-		logLevel = logging.INFO
-	}
-
-	return
 }
 
 func initializeDependencies() {

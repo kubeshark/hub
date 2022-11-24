@@ -3,10 +3,10 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/kubeshark/hub/pkg/dependency"
-	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 	tapApi "github.com/kubeshark/worker/api"
 	basenine "github.com/up9inc/basenine/client/go"
@@ -25,7 +25,7 @@ func (e *BasenineEntryStreamer) Get(ctx context.Context, socketId int, params *W
 
 	connection, err := basenine.NewConnection(shared.BasenineHost, shared.BaseninePort)
 	if err != nil {
-		logger.Log.Errorf("Failed to establish a connection to Basenine: %v", err)
+		log.Printf("Failed to establish a connection to Basenine: %v", err)
 		entryStreamerSocketConnector.CleanupSocket(socketId)
 		return err
 	}
@@ -45,7 +45,7 @@ func (e *BasenineEntryStreamer) Get(ctx context.Context, socketId int, params *W
 
 	leftOff, err := e.fetch(socketId, params, entryStreamerSocketConnector)
 	if err != nil {
-		logger.Log.Errorf("Fetch error: %v", err)
+		log.Printf("Fetch error: %v", err)
 	}
 
 	handleDataChannel := func(c *basenine.Connection, data chan []byte) {
@@ -58,12 +58,12 @@ func (e *BasenineEntryStreamer) Get(ctx context.Context, socketId int, params *W
 
 			var entry *tapApi.Entry
 			if err = json.Unmarshal(bytes, &entry); err != nil {
-				logger.Log.Debugf("Error unmarshalling entry: %v", err)
+				log.Printf("Error unmarshalling entry: %v", err)
 				continue
 			}
 
 			if err := entryStreamerSocketConnector.SendEntry(socketId, entry, params); err != nil {
-				logger.Log.Errorf("Error sending entry to socket, err: %v", err)
+				log.Printf("Error sending entry to socket, err: %v", err)
 				return
 			}
 		}
@@ -79,12 +79,12 @@ func (e *BasenineEntryStreamer) Get(ctx context.Context, socketId int, params *W
 
 			var metadata *basenine.Metadata
 			if err = json.Unmarshal(bytes, &metadata); err != nil {
-				logger.Log.Debugf("Error unmarshalling metadata: %v", err)
+				log.Printf("Error unmarshalling metadata: %v", err)
 				continue
 			}
 
 			if err := entryStreamerSocketConnector.SendMetadata(socketId, metadata); err != nil {
-				logger.Log.Errorf("Error sending metadata to socket, err: %v", err)
+				log.Printf("Error sending metadata to socket, err: %v", err)
 				return
 			}
 		}
@@ -94,7 +94,7 @@ func (e *BasenineEntryStreamer) Get(ctx context.Context, socketId int, params *W
 	go handleMetaChannel(connection, meta)
 
 	if err = connection.Query(leftOff, query, data, meta); err != nil {
-		logger.Log.Errorf("Query mode call failed: %v", err)
+		log.Printf("Query mode call failed: %v", err)
 		entryStreamerSocketConnector.CleanupSocket(socketId)
 		return err
 	}
