@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -30,6 +31,7 @@ var port = flag.Int("port", 80, "Port number of the HTTP server")
 var profiler = flag.Bool("profiler", false, "Run pprof server")
 
 func main() {
+	fmt.Println("Initializing the Hub")
 	initializeDependencies()
 	flag.Parse()
 

@@ -28,7 +28,7 @@ func ReplayRequest(c *gin.Context) {
 		return
 	}
 
-	log.Print("Executing replay, %v", replayDetails)
+	log.Printf("Executing replay, %v", replayDetails)
 	result := replay.ExecuteRequest(replayDetails, replayTimeout)
 	c.JSON(http.StatusOK, result)
 }

@@ -66,13 +66,13 @@ func (g *defaultOasGenerator) HandleEntry(kubesharkEntry *api.Entry) {
 	if kubesharkEntry.Protocol.Name == "http" {
 		dest := kubesharkEntry.Destination.Name
 		if dest == "" {
-			log.Printf("OAS: Unresolved entry %d", kubesharkEntry.Id)
+			log.Printf("OAS: Unresolved entry %s", kubesharkEntry.Id)
 			return
 		}
 
 		entry, err := har.NewEntry(kubesharkEntry.Request, kubesharkEntry.Response, kubesharkEntry.StartTime, kubesharkEntry.ElapsedTime)
 		if err != nil {
-			log.Printf("Failed to turn KubesharkEntry %d into HAR Entry: %s", kubesharkEntry.Id, err)
+			log.Printf("Failed to turn KubesharkEntry %s into HAR Entry: %v", kubesharkEntry.Id, err)
 			return
 		}
 
@@ -85,7 +85,7 @@ func (g *defaultOasGenerator) HandleEntry(kubesharkEntry *api.Entry) {
 
 		g.handleHARWithSource(entryWSource)
 	} else {
-		log.Printf("OAS: Unsupported protocol in entry %d: %s", kubesharkEntry.Id, kubesharkEntry.Protocol.Name)
+		log.Printf("OAS: Unsupported protocol in entry %s: %s", kubesharkEntry.Id, kubesharkEntry.Protocol.Name)
 	}
 }
 
@@ -100,7 +100,7 @@ func (g *defaultOasGenerator) handleHARWithSource(entryWSource *EntryWithSource)
 			log.Printf("Problematic entry: %s", txt)
 		}
 
-		log.Printf("Failed processing entry %d: %s", entryWSource.Id, err)
+		log.Printf("Failed processing entry %s: %v", entryWSource.Id, err)
 		return
 	}
 

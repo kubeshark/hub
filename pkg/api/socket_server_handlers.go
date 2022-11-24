@@ -98,7 +98,7 @@ func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isTapper bool, mess
 		if browserClients[socketId] != nil && browserClients[socketId].dataStreamCancelFunc == nil {
 			var params WebSocketParams
 			if err := json.Unmarshal(message, &params); err != nil {
-				log.Printf("Error: %v", socketId, err)
+				log.Printf("Error: [%d] %v", socketId, err)
 				return
 			}
 
