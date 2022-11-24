@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/app"
-	"github.com/kubeshark/kubeshark/agent/pkg/models"
+	"github.com/kubeshark/hub/pkg/app"
+	"github.com/kubeshark/hub/pkg/models"
 	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 	tapApi "github.com/kubeshark/worker/api"

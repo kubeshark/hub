@@ -2,9 +2,10 @@ package oas
 
 import (
 	"encoding/json"
-	"github.com/kubeshark/kubeshark/agent/pkg/har"
 	"testing"
 	"time"
+
+	"github.com/kubeshark/hub/pkg/har"
 )
 
 func TestOASGen(t *testing.T) {

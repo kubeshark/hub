@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/kubeshark/agent/pkg/replay"
-	"github.com/kubeshark/kubeshark/agent/pkg/validation"
+	"github.com/kubeshark/hub/pkg/replay"
+	"github.com/kubeshark/hub/pkg/validation"
 	"github.com/kubeshark/kubeshark/logger"
 )
 

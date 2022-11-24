@@ -6,10 +6,10 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/kubeshark/agent/pkg/dependency"
-	"github.com/kubeshark/kubeshark/agent/pkg/models"
-	"github.com/kubeshark/kubeshark/agent/pkg/providers/tappedPods"
-	"github.com/kubeshark/kubeshark/agent/pkg/providers/tappers"
+	"github.com/kubeshark/hub/pkg/dependency"
+	"github.com/kubeshark/hub/pkg/models"
+	"github.com/kubeshark/hub/pkg/providers/tappedPods"
+	"github.com/kubeshark/hub/pkg/providers/tappers"
 
 	tapApi "github.com/kubeshark/worker/api"
 

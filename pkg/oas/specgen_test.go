@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/chanced/openapi"
-	"github.com/kubeshark/kubeshark/agent/pkg/har"
+	"github.com/kubeshark/hub/pkg/har"
 	"github.com/kubeshark/kubeshark/logger"
 	"github.com/wI2L/jsondiff"
 )

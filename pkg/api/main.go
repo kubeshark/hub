@@ -11,16 +11,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/dependency"
-	"github.com/kubeshark/kubeshark/agent/pkg/oas"
-	"github.com/kubeshark/kubeshark/agent/pkg/servicemap"
+	"github.com/kubeshark/hub/pkg/dependency"
+	"github.com/kubeshark/hub/pkg/oas"
+	"github.com/kubeshark/hub/pkg/servicemap"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/har"
-	"github.com/kubeshark/kubeshark/agent/pkg/holder"
-	"github.com/kubeshark/kubeshark/agent/pkg/providers"
+	"github.com/kubeshark/hub/pkg/har"
+	"github.com/kubeshark/hub/pkg/holder"
+	"github.com/kubeshark/hub/pkg/providers"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/resolver"
-	"github.com/kubeshark/kubeshark/agent/pkg/utils"
+	"github.com/kubeshark/hub/pkg/resolver"
+	"github.com/kubeshark/hub/pkg/utils"
 
 	"github.com/kubeshark/kubeshark/logger"
 	tapApi "github.com/kubeshark/worker/api"

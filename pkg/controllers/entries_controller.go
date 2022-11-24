@@ -3,10 +3,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/dependency"
-	"github.com/kubeshark/kubeshark/agent/pkg/entries"
-	"github.com/kubeshark/kubeshark/agent/pkg/models"
-	"github.com/kubeshark/kubeshark/agent/pkg/validation"
+	"github.com/kubeshark/hub/pkg/dependency"
+	"github.com/kubeshark/hub/pkg/entries"
+	"github.com/kubeshark/hub/pkg/models"
+	"github.com/kubeshark/hub/pkg/validation"
 
 	"github.com/gin-gonic/gin"
 

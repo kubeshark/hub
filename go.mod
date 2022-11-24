@@ -1,4 +1,4 @@
-module github.com/kubeshark/kubeshark/agent
+module github.com/kubeshark/hub
 
 go 1.17
 

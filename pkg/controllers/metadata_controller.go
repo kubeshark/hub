@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/kubeshark/agent/pkg/version"
+	"github.com/kubeshark/hub/pkg/version"
 	"github.com/kubeshark/kubeshark/shared"
 )
 

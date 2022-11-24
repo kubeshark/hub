@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/providers"
+	"github.com/kubeshark/hub/pkg/providers"
 	"github.com/kubeshark/worker/api"
 )
 

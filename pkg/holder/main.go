@@ -1,6 +1,6 @@
 package holder
 
-import "github.com/kubeshark/kubeshark/agent/pkg/resolver"
+import "github.com/kubeshark/hub/pkg/resolver"
 
 var k8sResolver *resolver.Resolver
 

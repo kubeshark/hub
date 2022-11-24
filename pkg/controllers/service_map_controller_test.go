@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/dependency"
-	"github.com/kubeshark/kubeshark/agent/pkg/servicemap"
+	"github.com/kubeshark/hub/pkg/dependency"
+	"github.com/kubeshark/hub/pkg/servicemap"
 
 	"github.com/gin-gonic/gin"
 	tapApi "github.com/kubeshark/worker/api"

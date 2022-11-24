@@ -5,8 +5,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/providers/tappers"
-	"github.com/kubeshark/kubeshark/agent/pkg/utils"
+	"github.com/kubeshark/hub/pkg/providers/tappers"
+	"github.com/kubeshark/hub/pkg/utils"
 	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 )

@@ -4,7 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/utils"
+	"github.com/kubeshark/hub/pkg/utils"
 	"github.com/kubeshark/kubeshark/logger"
 	"github.com/kubeshark/kubeshark/shared"
 )

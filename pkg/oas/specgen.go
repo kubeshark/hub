@@ -18,7 +18,7 @@ import (
 	"github.com/kubeshark/kubeshark/logger"
 	"github.com/nav-inc/datetime"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/har"
+	"github.com/kubeshark/hub/pkg/har"
 
 	"time"
 )

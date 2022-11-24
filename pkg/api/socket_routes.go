@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/kubeshark/kubeshark/agent/pkg/models"
-	"github.com/kubeshark/kubeshark/agent/pkg/utils"
+	"github.com/kubeshark/hub/pkg/models"
+	"github.com/kubeshark/hub/pkg/utils"
 	"github.com/kubeshark/kubeshark/logger"
 	tapApi "github.com/kubeshark/worker/api"
 )

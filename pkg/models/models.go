@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/har"
+	"github.com/kubeshark/hub/pkg/har"
 	tapApi "github.com/kubeshark/worker/api"
 
 	"github.com/kubeshark/kubeshark/shared"

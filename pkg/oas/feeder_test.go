@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/har"
+	"github.com/kubeshark/hub/pkg/har"
 
 	"github.com/kubeshark/kubeshark/logger"
 )

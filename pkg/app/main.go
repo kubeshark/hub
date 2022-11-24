@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/antelman107/net-wait-go/wait"
-	"github.com/kubeshark/kubeshark/agent/pkg/api"
-	"github.com/kubeshark/kubeshark/agent/pkg/providers"
-	"github.com/kubeshark/kubeshark/agent/pkg/utils"
+	"github.com/kubeshark/hub/pkg/api"
+	"github.com/kubeshark/hub/pkg/providers"
+	"github.com/kubeshark/hub/pkg/utils"
 	"github.com/kubeshark/kubeshark/logger"
 	tapApi "github.com/kubeshark/worker/api"
 	amqpExt "github.com/kubeshark/worker/extensions/amqp"

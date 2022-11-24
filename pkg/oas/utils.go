@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kubeshark/kubeshark/agent/pkg/har"
+	"github.com/kubeshark/hub/pkg/har"
 
 	"github.com/chanced/openapi"
 	"github.com/kubeshark/kubeshark/logger"

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/kubeshark/kubeshark/agent/pkg/app"
+	"github.com/kubeshark/hub/pkg/app"
 	tapApi "github.com/kubeshark/worker/api"
 	kubesharkhttp "github.com/kubeshark/worker/extensions/http"
 )
