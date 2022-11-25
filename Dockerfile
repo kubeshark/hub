@@ -2,7 +2,7 @@ ARG TARGETARCH=amd64
 
 ### Base builder image for native builds architecture
 FROM golang:1.17-alpine AS builder-native-base
-ENV CGO_ENABLED=1 GOOS=linux
+ENV CGO_ENABLED=0 GOOS=linux
 RUN apk add --no-cache g++ perl-utils
 
 
