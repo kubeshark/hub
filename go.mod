@@ -6,7 +6,6 @@ require (
 	github.com/antelman107/net-wait-go v0.0.0-20210623112055-cf684aebda7b
 	github.com/chanced/openapi v0.0.8
 	github.com/djherbis/atime v1.1.0
-	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0

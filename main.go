@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/db"
 	"github.com/kubeshark/hub/pkg/dependency"
@@ -28,7 +27,6 @@ import (
 
 var namespace = flag.String("namespace", "", "Resolve IPs if they belong to resources in this namespace (default is all)")
 var port = flag.Int("port", 80, "Port number of the HTTP server")
-var profiler = flag.Bool("profiler", false, "Run pprof server")
 
 func main() {
 	fmt.Println("Initializing the Hub")
@@ -38,10 +36,6 @@ func main() {
 	app.LoadExtensions()
 
 	ginApp := runInApiServerMode(*namespace)
-
-	if *profiler {
-		pprof.Register(ginApp)
-	}
 
 	utils.StartServer(ginApp, *port)
 
