@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	kubesharkhttp "github.com/kubeshark/base/pkg/extensions/http"
 	"github.com/kubeshark/hub/pkg/app"
 )
@@ -52,12 +52,12 @@ func decrementCounter() {
 	inProcessRequestsLocker.Unlock()
 }
 
-func getEntryFromRequestResponse(extension *tapApi.Extension, request *http.Request, response *http.Response) *tapApi.Entry {
+func getEntryFromRequestResponse(extension *baseApi.Extension, request *http.Request, response *http.Response) *baseApi.Entry {
 	captureTime := time.Now()
 
-	itemTmp := tapApi.OutputChannelItem{
+	itemTmp := baseApi.OutputChannelItem{
 		Protocol: *extension.Protocol,
-		ConnectionInfo: &tapApi.ConnectionInfo{
+		ConnectionInfo: &baseApi.ConnectionInfo{
 			ClientIP:   "",
 			ClientPort: "1",
 			ServerIP:   "",
@@ -66,8 +66,8 @@ func getEntryFromRequestResponse(extension *tapApi.Extension, request *http.Requ
 		},
 		Capture:   "",
 		Timestamp: time.Now().UnixMilli(),
-		Pair: &tapApi.RequestResponsePair{
-			Request: tapApi.GenericMessage{
+		Pair: &baseApi.RequestResponsePair{
+			Request: baseApi.GenericMessage{
 				IsRequest:   true,
 				CaptureTime: captureTime,
 				CaptureSize: 0,
@@ -76,7 +76,7 @@ func getEntryFromRequestResponse(extension *tapApi.Extension, request *http.Requ
 					Data: request,
 				},
 			},
-			Response: tapApi.GenericMessage{
+			Response: baseApi.GenericMessage{
 				IsRequest:   false,
 				CaptureTime: captureTime,
 				CaptureSize: 0,
@@ -93,7 +93,7 @@ func getEntryFromRequestResponse(extension *tapApi.Extension, request *http.Requ
 	if err != nil {
 		return nil
 	}
-	var finalItem *tapApi.OutputChannelItem
+	var finalItem *baseApi.OutputChannelItem
 	if err := json.Unmarshal(itemMarshalled, &finalItem); err != nil {
 		return nil
 	}
@@ -146,7 +146,7 @@ func ExecuteRequest(replayData *Details, timeout time.Duration) *Response {
 				ErrorMessage: err.Error(),
 			}
 		}
-		var entryUnmarshalled *tapApi.Entry
+		var entryUnmarshalled *baseApi.Entry
 		if err := json.Unmarshal(entryMarshalled, &entryUnmarshalled); err != nil {
 			return &Response{
 				Success:      false,
@@ -166,7 +166,7 @@ func ExecuteRequest(replayData *Details, timeout time.Duration) *Response {
 
 		return &Response{
 			Success: true,
-			Data: &tapApi.EntryWrapper{
+			Data: &baseApi.EntryWrapper{
 				Protocol:       *extension.Protocol,
 				Representation: string(representation),
 				Data:           entryUnmarshalled,

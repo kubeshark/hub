@@ -23,7 +23,7 @@ import (
 	"github.com/kubeshark/hub/pkg/resolver"
 	"github.com/kubeshark/hub/pkg/utils"
 
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 )
 
 var k8sResolver *resolver.Resolver
@@ -48,7 +48,7 @@ func StartResolving(namespace string) {
 	holder.SetResolver(res)
 }
 
-func StartReadingEntries(harChannel <-chan *tapApi.OutputChannelItem, workingDir *string, extensionsMap map[string]*tapApi.Extension) {
+func StartReadingEntries(harChannel <-chan *baseApi.OutputChannelItem, workingDir *string, extensionsMap map[string]*baseApi.Extension) {
 	if workingDir != nil && *workingDir != "" {
 		startReadingFiles(*workingDir)
 	} else {
@@ -93,7 +93,7 @@ func startReadingFiles(workingDir string) {
 	}
 }
 
-func startReadingChannel(outputItems <-chan *tapApi.OutputChannelItem, extensionsMap map[string]*tapApi.Extension) {
+func startReadingChannel(outputItems <-chan *baseApi.OutputChannelItem, extensionsMap map[string]*baseApi.Extension) {
 	if outputItems == nil {
 		panic("Channel of captured messages is nil")
 	}
@@ -102,7 +102,7 @@ func startReadingChannel(outputItems <-chan *tapApi.OutputChannelItem, extension
 		extension := extensionsMap[item.Protocol.Name]
 		resolvedSource, resolvedDestination, namespace := resolveIP(item.ConnectionInfo)
 
-		if namespace == "" && item.Namespace != tapApi.UnknownNamespace {
+		if namespace == "" && item.Namespace != baseApi.UnknownNamespace {
 			namespace = item.Namespace
 		}
 
@@ -130,7 +130,7 @@ func startReadingChannel(outputItems <-chan *tapApi.OutputChannelItem, extension
 	}
 }
 
-func resolveIP(connectionInfo *tapApi.ConnectionInfo) (resolvedSource string, resolvedDestination string, namespace string) {
+func resolveIP(connectionInfo *baseApi.ConnectionInfo) (resolvedSource string, resolvedDestination string, namespace string) {
 	if k8sResolver != nil {
 		unresolvedSource := connectionInfo.ClientIP
 		resolvedSourceObject := k8sResolver.Resolve(unresolvedSource)

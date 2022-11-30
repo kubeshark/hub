@@ -11,7 +11,7 @@ import (
 	"github.com/kubeshark/hub/pkg/servicemap"
 
 	"github.com/gin-gonic/gin"
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -23,20 +23,20 @@ const (
 )
 
 var (
-	TCPEntryA = &tapApi.TCP{
+	TCPEntryA = &baseApi.TCP{
 		Name: a,
 		Port: Port,
 		IP:   fmt.Sprintf("%s.%s", Ip, a),
 	}
-	TCPEntryB = &tapApi.TCP{
+	TCPEntryB = &baseApi.TCP{
 		Name: b,
 		Port: Port,
 		IP:   fmt.Sprintf("%s.%s", Ip, b),
 	}
 )
 
-var ProtocolHttp = &tapApi.Protocol{
-	ProtocolSummary: tapApi.ProtocolSummary{
+var ProtocolHttp = &baseApi.Protocol{
+	ProtocolSummary: baseApi.ProtocolSummary{
 		Name:         "http",
 		Version:      "1.1",
 		Abbreviation: "HTTP",

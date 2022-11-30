@@ -1,4 +1,4 @@
-package tappers
+package workers
 
 import (
 	"log"
@@ -9,30 +9,30 @@ import (
 	"github.com/kubeshark/hub/pkg/utils"
 )
 
-const FilePath = models.DataDirPath + "tappers-status.json"
+const FilePath = models.DataDirPath + "workers-status.json"
 
 var (
 	lockStatus = &sync.Mutex{}
 	syncOnce   sync.Once
-	status     map[string]*models.TapperStatus
+	status     map[string]*models.WorkerStatus
 
 	lockConnectedCount = &sync.Mutex{}
 	connectedCount     int
 )
 
-func GetStatus() map[string]*models.TapperStatus {
+func GetStatus() map[string]*models.WorkerStatus {
 	initStatus()
 
 	return status
 }
 
-func SetStatus(tapperStatus *models.TapperStatus) {
+func SetStatus(workerStatus *models.WorkerStatus) {
 	initStatus()
 
 	lockStatus.Lock()
 	defer lockStatus.Unlock()
 
-	status[tapperStatus.NodeName] = tapperStatus
+	status[workerStatus.NodeName] = workerStatus
 
 	saveStatus()
 }
@@ -41,7 +41,7 @@ func ResetStatus() {
 	lockStatus.Lock()
 	defer lockStatus.Unlock()
 
-	status = make(map[string]*models.TapperStatus)
+	status = make(map[string]*models.WorkerStatus)
 
 	saveStatus()
 }
@@ -67,10 +67,10 @@ func Disconnected() {
 func initStatus() {
 	syncOnce.Do(func() {
 		if err := utils.ReadJsonFile(FilePath, &status); err != nil {
-			status = make(map[string]*models.TapperStatus)
+			status = make(map[string]*models.WorkerStatus)
 
 			if !os.IsNotExist(err) {
-				log.Printf("Error reading tappers status from file, err: %v", err)
+				log.Printf("Error reading workers status from file, err: %v", err)
 			}
 		}
 	})
@@ -78,6 +78,6 @@ func initStatus() {
 
 func saveStatus() {
 	if err := utils.SaveJsonFile(FilePath, status); err != nil {
-		log.Printf("Error saving tappers status, err: %v", err)
+		log.Printf("Error saving workers status, err: %v", err)
 	}
 }

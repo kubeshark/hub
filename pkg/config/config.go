@@ -47,7 +47,7 @@ func applyDefaultConfig() error {
 
 func getDefaultConfig() (*models.Config, error) {
 	return &models.Config{
-		MaxDBSizeBytes:    defaultMaxDatabaseSizeBytes,
-		AgentDatabasePath: DefaultDatabasePath,
+		MaxDBSizeBytes: defaultMaxDatabaseSizeBytes,
+		DatabasePath:   DefaultDatabasePath,
 	}, nil
 }

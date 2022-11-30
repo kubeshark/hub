@@ -10,10 +10,10 @@ func StatusRoutes(ginApp *gin.Engine) {
 
 	routeGroup.GET("/health", controllers.HealthCheck)
 
-	routeGroup.POST("/tappedPods", controllers.PostTappedPods)
-	routeGroup.POST("/tapperStatus", controllers.PostTapperStatus)
-	routeGroup.GET("/connectedTappersCount", controllers.GetConnectedTappersCount)
-	routeGroup.GET("/tap", controllers.GetTappingStatus)
+	routeGroup.POST("/targettedPods", controllers.PostTargettedPods)
+	routeGroup.POST("/workerStatus", controllers.PostWorkerStatus)
+	routeGroup.GET("/connectedWorkersCount", controllers.GetConnectedWorkersCount)
+	routeGroup.GET("/target", controllers.GetTargettingStatus)
 
 	routeGroup.GET("/general", controllers.GetGeneralStats)
 	routeGroup.GET("/trafficStats", controllers.GetTrafficStats)

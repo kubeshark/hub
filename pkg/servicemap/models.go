@@ -1,7 +1,7 @@
 package servicemap
 
 import (
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 )
 
 type ServiceMapStatus struct {
@@ -18,16 +18,16 @@ type ServiceMapResponse struct {
 }
 
 type ServiceMapNode struct {
-	Id       int         `json:"id"`
-	Name     string      `json:"name"`
-	Entry    *tapApi.TCP `json:"entry"`
-	Count    int         `json:"count"`
-	Resolved bool        `json:"resolved"`
+	Id       int          `json:"id"`
+	Name     string       `json:"name"`
+	Entry    *baseApi.TCP `json:"entry"`
+	Count    int          `json:"count"`
+	Resolved bool         `json:"resolved"`
 }
 
 type ServiceMapEdge struct {
-	Source      ServiceMapNode   `json:"source"`
-	Destination ServiceMapNode   `json:"destination"`
-	Count       int              `json:"count"`
-	Protocol    *tapApi.Protocol `json:"protocol"`
+	Source      ServiceMapNode    `json:"source"`
+	Destination ServiceMapNode    `json:"destination"`
+	Count       int               `json:"count"`
+	Protocol    *baseApi.Protocol `json:"protocol"`
 }

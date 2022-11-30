@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/antelman107/net-wait-go/wait"
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	amqpExt "github.com/kubeshark/base/pkg/extensions/amqp"
 	httpExt "github.com/kubeshark/base/pkg/extensions/http"
 	kafkaExt "github.com/kubeshark/base/pkg/extensions/kafka"
@@ -20,17 +20,17 @@ import (
 )
 
 var (
-	Extensions    []*tapApi.Extension          // global
-	ExtensionsMap map[string]*tapApi.Extension // global
-	ProtocolsMap  map[string]*tapApi.Protocol  //global
+	Extensions    []*baseApi.Extension          // global
+	ExtensionsMap map[string]*baseApi.Extension // global
+	ProtocolsMap  map[string]*baseApi.Protocol  //global
 )
 
 func LoadExtensions() {
-	Extensions = make([]*tapApi.Extension, 0)
-	ExtensionsMap = make(map[string]*tapApi.Extension)
-	ProtocolsMap = make(map[string]*tapApi.Protocol)
+	Extensions = make([]*baseApi.Extension, 0)
+	ExtensionsMap = make(map[string]*baseApi.Extension)
+	ProtocolsMap = make(map[string]*baseApi.Protocol)
 
-	extensionHttp := &tapApi.Extension{}
+	extensionHttp := &baseApi.Extension{}
 	dissectorHttp := httpExt.NewDissector()
 	dissectorHttp.Register(extensionHttp)
 	extensionHttp.Dissector = dissectorHttp
@@ -41,7 +41,7 @@ func LoadExtensions() {
 		ProtocolsMap[k] = v
 	}
 
-	extensionAmqp := &tapApi.Extension{}
+	extensionAmqp := &baseApi.Extension{}
 	dissectorAmqp := amqpExt.NewDissector()
 	dissectorAmqp.Register(extensionAmqp)
 	extensionAmqp.Dissector = dissectorAmqp
@@ -52,7 +52,7 @@ func LoadExtensions() {
 		ProtocolsMap[k] = v
 	}
 
-	extensionKafka := &tapApi.Extension{}
+	extensionKafka := &baseApi.Extension{}
 	dissectorKafka := kafkaExt.NewDissector()
 	dissectorKafka.Register(extensionKafka)
 	extensionKafka.Dissector = dissectorKafka
@@ -63,7 +63,7 @@ func LoadExtensions() {
 		ProtocolsMap[k] = v
 	}
 
-	extensionRedis := &tapApi.Extension{}
+	extensionRedis := &baseApi.Extension{}
 	dissectorRedis := redisExt.NewDissector()
 	dissectorRedis.Register(extensionRedis)
 	extensionRedis.Dissector = dissectorRedis
@@ -115,16 +115,16 @@ func ConfigureBasenineServer(host string, port string, dbSize int64, logLevel lo
 	utils.StartTime = time.Now().UnixNano() / int64(time.Millisecond)
 }
 
-func GetEntryInputChannel() chan *tapApi.OutputChannelItem {
-	outputItemsChannel := make(chan *tapApi.OutputChannelItem)
-	filteredOutputItemsChannel := make(chan *tapApi.OutputChannelItem)
+func GetEntryInputChannel() chan *baseApi.OutputChannelItem {
+	outputItemsChannel := make(chan *baseApi.OutputChannelItem)
+	filteredOutputItemsChannel := make(chan *baseApi.OutputChannelItem)
 	go FilterItems(outputItemsChannel, filteredOutputItemsChannel)
 	go api.StartReadingEntries(filteredOutputItemsChannel, nil, ExtensionsMap)
 
 	return outputItemsChannel
 }
 
-func FilterItems(inChannel <-chan *tapApi.OutputChannelItem, outChannel chan *tapApi.OutputChannelItem) {
+func FilterItems(inChannel <-chan *baseApi.OutputChannelItem, outChannel chan *baseApi.OutputChannelItem) {
 	for message := range inChannel {
 		if message.ConnectionInfo.IsOutgoing && api.CheckIsServiceIP(message.ConnectionInfo.ServerIP) {
 			continue

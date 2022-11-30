@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/hub/pkg/db"
 	"github.com/kubeshark/hub/pkg/dependency"
 	basenine "github.com/up9inc/basenine/client/go"
@@ -56,7 +56,7 @@ func (e *BasenineEntryStreamer) Get(ctx context.Context, socketId int, params *W
 				return
 			}
 
-			var entry *tapApi.Entry
+			var entry *baseApi.Entry
 			if err = json.Unmarshal(bytes, &entry); err != nil {
 				log.Printf("Error unmarshalling entry: %v", err)
 				continue
@@ -150,7 +150,7 @@ func (e *BasenineEntryStreamer) fetch(socketId int, params *WebSocketParams, con
 
 	data = e.reverseBytesSlice(data)
 	for _, row := range data {
-		var entry *tapApi.Entry
+		var entry *baseApi.Entry
 		if err = json.Unmarshal(row, &entry); err != nil {
 			break
 		}

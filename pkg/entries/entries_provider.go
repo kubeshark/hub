@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/app"
 	"github.com/kubeshark/hub/pkg/db"
@@ -15,13 +15,13 @@ import (
 )
 
 type EntriesProvider interface {
-	GetEntries(entriesRequest *models.EntriesRequest) ([]*tapApi.EntryWrapper, *basenine.Metadata, error)
-	GetEntry(singleEntryRequest *models.SingleEntryRequest, entryId string) (*tapApi.EntryWrapper, error)
+	GetEntries(entriesRequest *models.EntriesRequest) ([]*baseApi.EntryWrapper, *basenine.Metadata, error)
+	GetEntry(singleEntryRequest *models.SingleEntryRequest, entryId string) (*baseApi.EntryWrapper, error)
 }
 
 type BasenineEntriesProvider struct{}
 
-func (e *BasenineEntriesProvider) GetEntries(entriesRequest *models.EntriesRequest) ([]*tapApi.EntryWrapper, *basenine.Metadata, error) {
+func (e *BasenineEntriesProvider) GetEntries(entriesRequest *models.EntriesRequest) ([]*baseApi.EntryWrapper, *basenine.Metadata, error) {
 	data, _, lastMeta, err := basenine.Fetch(db.BasenineHost, db.BaseninePort,
 		entriesRequest.LeftOff, entriesRequest.Direction, entriesRequest.Query,
 		entriesRequest.Limit, time.Duration(entriesRequest.TimeoutMs)*time.Millisecond)
@@ -29,10 +29,10 @@ func (e *BasenineEntriesProvider) GetEntries(entriesRequest *models.EntriesReque
 		return nil, nil, err
 	}
 
-	var dataSlice []*tapApi.EntryWrapper
+	var dataSlice []*baseApi.EntryWrapper
 
 	for _, row := range data {
-		var entry *tapApi.Entry
+		var entry *baseApi.Entry
 		err = json.Unmarshal(row, &entry)
 		if err != nil {
 			return nil, nil, err
@@ -50,7 +50,7 @@ func (e *BasenineEntriesProvider) GetEntries(entriesRequest *models.EntriesReque
 
 		base := extension.Dissector.Summarize(entry)
 
-		dataSlice = append(dataSlice, &tapApi.EntryWrapper{
+		dataSlice = append(dataSlice, &baseApi.EntryWrapper{
 			Protocol: *protocol,
 			Data:     entry,
 			Base:     base,
@@ -66,8 +66,8 @@ func (e *BasenineEntriesProvider) GetEntries(entriesRequest *models.EntriesReque
 	return dataSlice, metadata, nil
 }
 
-func (e *BasenineEntriesProvider) GetEntry(singleEntryRequest *models.SingleEntryRequest, entryId string) (*tapApi.EntryWrapper, error) {
-	var entry *tapApi.Entry
+func (e *BasenineEntriesProvider) GetEntry(singleEntryRequest *models.SingleEntryRequest, entryId string) (*baseApi.EntryWrapper, error) {
+	var entry *baseApi.Entry
 	bytes, err := basenine.Single(db.BasenineHost, db.BaseninePort, entryId, singleEntryRequest.Query)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (e *BasenineEntriesProvider) GetEntry(singleEntryRequest *models.SingleEntr
 		return nil, err
 	}
 
-	return &tapApi.EntryWrapper{
+	return &baseApi.EntryWrapper{
 		Protocol:       *protocol,
 		Representation: string(representation),
 		Data:           entry,

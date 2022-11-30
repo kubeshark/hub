@@ -3,13 +3,13 @@ package api
 import (
 	"fmt"
 
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/base/pkg/models"
 	basenine "github.com/up9inc/basenine/client/go"
 )
 
 type EntryStreamerSocketConnector interface {
-	SendEntry(socketId int, entry *tapApi.Entry, params *WebSocketParams) error
+	SendEntry(socketId int, entry *baseApi.Entry, params *WebSocketParams) error
 	SendMetadata(socketId int, metadata *basenine.Metadata) error
 	SendToastError(socketId int, err error) error
 	CleanupSocket(socketId int)
@@ -17,7 +17,7 @@ type EntryStreamerSocketConnector interface {
 
 type DefaultEntryStreamerSocketConnector struct{}
 
-func (e *DefaultEntryStreamerSocketConnector) SendEntry(socketId int, entry *tapApi.Entry, params *WebSocketParams) error {
+func (e *DefaultEntryStreamerSocketConnector) SendEntry(socketId int, entry *baseApi.Entry, params *WebSocketParams) error {
 	var message []byte
 	if params.EnableFullEntries {
 		message, _ = models.CreateFullEntryWebSocketMessage(entry)

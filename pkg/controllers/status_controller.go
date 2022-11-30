@@ -15,67 +15,67 @@ import (
 	"github.com/kubeshark/hub/pkg/holder"
 	"github.com/kubeshark/hub/pkg/kubernetes"
 	"github.com/kubeshark/hub/pkg/providers"
-	"github.com/kubeshark/hub/pkg/providers/tappedPods"
-	"github.com/kubeshark/hub/pkg/providers/tappers"
+	"github.com/kubeshark/hub/pkg/providers/targettedPods"
+	"github.com/kubeshark/hub/pkg/providers/workers"
 	"github.com/kubeshark/hub/pkg/validation"
 )
 
 func HealthCheck(c *gin.Context) {
-	tappersStatus := make([]*models.TapperStatus, 0)
-	for _, value := range tappers.GetStatus() {
-		tappersStatus = append(tappersStatus, value)
+	workersStatus := make([]*models.WorkerStatus, 0)
+	for _, value := range workers.GetStatus() {
+		workersStatus = append(workersStatus, value)
 	}
 
 	response := models.HealthResponse{
-		TappedPods:            tappedPods.Get(),
-		ConnectedTappersCount: tappers.GetConnectedCount(),
-		TappersStatus:         tappersStatus,
+		TargettedPods:         targettedPods.Get(),
+		ConnectedWorkersCount: workers.GetConnectedCount(),
+		WorkersStatus:         workersStatus,
 	}
 	c.JSON(http.StatusOK, response)
 }
 
-func PostTappedPods(c *gin.Context) {
-	var requestTappedPods []core.Pod
-	if err := c.Bind(&requestTappedPods); err != nil {
+func PostTargettedPods(c *gin.Context) {
+	var requestTargettedPods []core.Pod
+	if err := c.Bind(&requestTargettedPods); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	podInfos := kubernetes.GetPodInfosForPods(requestTappedPods)
+	podInfos := kubernetes.GetPodInfosForPods(requestTargettedPods)
 
-	log.Printf("[Status] POST request: %d tapped pods", len(requestTappedPods))
-	tappedPods.Set(podInfos)
-	api.BroadcastTappedPodsStatus()
+	log.Printf("[Status] POST request: %d targetted pods", len(requestTargettedPods))
+	targettedPods.Set(podInfos)
+	api.BroadcastTargettedPodsStatus()
 
-	nodeToTappedPodMap := kubernetes.GetNodeHostToTappedPodsMap(requestTappedPods)
-	tappedPods.SetNodeToTappedPodMap(nodeToTappedPodMap)
-	api.BroadcastTappedPodsToTappers(nodeToTappedPodMap)
+	nodeToTargettedPodMap := kubernetes.GetNodeHostToTargettedPodsMap(requestTargettedPods)
+	targettedPods.SetNodeToTargettedPodMap(nodeToTargettedPodMap)
+	api.BroadcastTargettedPodsToWorkers(nodeToTargettedPodMap)
 }
 
-func PostTapperStatus(c *gin.Context) {
-	tapperStatus := &models.TapperStatus{}
-	if err := c.Bind(tapperStatus); err != nil {
+func PostWorkerStatus(c *gin.Context) {
+	workerStatus := &models.WorkerStatus{}
+	if err := c.Bind(workerStatus); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	if err := validation.Validate(tapperStatus); err != nil {
+	if err := validation.Validate(workerStatus); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	log.Printf("[Status] POST request, tapper status: %v", tapperStatus)
-	tappers.SetStatus(tapperStatus)
-	api.BroadcastTappedPodsStatus()
+	log.Printf("[Status] POST request, worker status: %v", workerStatus)
+	workers.SetStatus(workerStatus)
+	api.BroadcastTargettedPodsStatus()
 }
 
-func GetConnectedTappersCount(c *gin.Context) {
-	c.JSON(http.StatusOK, tappers.GetConnectedCount())
+func GetConnectedWorkersCount(c *gin.Context) {
+	c.JSON(http.StatusOK, workers.GetConnectedCount())
 }
 
-func GetTappingStatus(c *gin.Context) {
-	tappedPodsStatus := tappedPods.GetTappedPodsStatus()
-	c.JSON(http.StatusOK, tappedPodsStatus)
+func GetTargettingStatus(c *gin.Context) {
+	targettedPodsStatus := targettedPods.GetTargettedPodsStatus()
+	c.JSON(http.StatusOK, targettedPodsStatus)
 }
 
 func GetGeneralStats(c *gin.Context) {

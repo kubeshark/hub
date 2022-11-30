@@ -6,7 +6,7 @@ import (
 
 	"github.com/jinzhu/copier"
 
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 )
 
 const (
@@ -33,7 +33,7 @@ type defaultServiceMap struct {
 }
 
 type ServiceMapSink interface {
-	NewTCPEntry(source *tapApi.TCP, destination *tapApi.TCP, protocol *tapApi.Protocol)
+	NewTCPEntry(source *baseApi.TCP, destination *baseApi.TCP, protocol *baseApi.Protocol)
 }
 
 type ServiceMap interface {
@@ -61,17 +61,17 @@ type key string
 
 type entryData struct {
 	key   key
-	entry *tapApi.TCP
+	entry *baseApi.TCP
 }
 
 type nodeData struct {
 	id    int
-	entry *tapApi.TCP
+	entry *baseApi.TCP
 	count int
 }
 
 type edgeProtocol struct {
-	protocol *tapApi.Protocol
+	protocol *baseApi.Protocol
 	count    int
 }
 
@@ -91,7 +91,7 @@ func newDirectedGraph() *graph {
 	}
 }
 
-func newNodeData(id int, e *tapApi.TCP) *nodeData {
+func newNodeData(id int, e *baseApi.TCP) *nodeData {
 	return &nodeData{
 		id:    id,
 		entry: e,
@@ -99,7 +99,7 @@ func newNodeData(id int, e *tapApi.TCP) *nodeData {
 	}
 }
 
-func newEdgeData(p *tapApi.Protocol) *edgeData {
+func newEdgeData(p *baseApi.Protocol) *edgeData {
 	return &edgeData{
 		data: map[key]*edgeProtocol{
 			key(p.Name): {
@@ -115,7 +115,7 @@ func (s *defaultServiceMap) nodeExists(k key) (*nodeData, bool) {
 	return n, ok
 }
 
-func (s *defaultServiceMap) addNode(k key, e *tapApi.TCP) (*nodeData, bool) {
+func (s *defaultServiceMap) addNode(k key, e *baseApi.TCP) (*nodeData, bool) {
 	nd, exists := s.nodeExists(k)
 	if !exists {
 		s.graph.Nodes[k] = newNodeData(len(s.graph.Nodes)+1, e)
@@ -124,7 +124,7 @@ func (s *defaultServiceMap) addNode(k key, e *tapApi.TCP) (*nodeData, bool) {
 	return nd, false
 }
 
-func (s *defaultServiceMap) addEdge(u, v *entryData, p *tapApi.Protocol) {
+func (s *defaultServiceMap) addEdge(u, v *entryData, p *baseApi.Protocol) {
 	if n, ok := s.addNode(u.key, u.entry); !ok {
 		n.count++
 	}
@@ -174,7 +174,7 @@ func (s *defaultServiceMap) IsEnabled() bool {
 	return s.enabled
 }
 
-func (s *defaultServiceMap) NewTCPEntry(src *tapApi.TCP, dst *tapApi.TCP, p *tapApi.Protocol) {
+func (s *defaultServiceMap) NewTCPEntry(src *baseApi.TCP, dst *baseApi.TCP, p *baseApi.Protocol) {
 	if !s.IsEnabled() {
 		return
 	}
@@ -185,7 +185,7 @@ func (s *defaultServiceMap) NewTCPEntry(src *tapApi.TCP, dst *tapApi.TCP, p *tap
 	if len(src.Name) == 0 {
 		srcEntry = &entryData{
 			key:   key(src.IP),
-			entry: &tapApi.TCP{},
+			entry: &baseApi.TCP{},
 		}
 		if err := copier.Copy(srcEntry.entry, src); err != nil {
 			log.Printf("Error while copying src entry into src entry data")
@@ -202,7 +202,7 @@ func (s *defaultServiceMap) NewTCPEntry(src *tapApi.TCP, dst *tapApi.TCP, p *tap
 	if len(dst.Name) == 0 {
 		dstEntry = &entryData{
 			key:   key(dst.IP),
-			entry: &tapApi.TCP{},
+			entry: &baseApi.TCP{},
 		}
 		if err := copier.Copy(dstEntry.entry, dst); err != nil {
 			log.Printf("Error while copying dst entry into dst entry data")

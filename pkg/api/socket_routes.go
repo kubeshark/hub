@@ -9,32 +9,32 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/utils"
 )
 
 var (
-	extensionsMap map[string]*tapApi.Extension // global
-	protocolsMap  map[string]*tapApi.Protocol  //global
+	extensionsMap map[string]*baseApi.Extension // global
+	protocolsMap  map[string]*baseApi.Protocol  //global
 )
 
-func InitMaps(extensions map[string]*tapApi.Extension, protocols map[string]*tapApi.Protocol) {
+func InitMaps(extensions map[string]*baseApi.Extension, protocols map[string]*baseApi.Protocol) {
 	extensionsMap = extensions
 	protocolsMap = protocols
 }
 
 type EventHandlers interface {
-	WebSocketConnect(c *gin.Context, socketId int, isTapper bool)
-	WebSocketDisconnect(socketId int, isTapper bool)
-	WebSocketMessage(socketId int, isTapper bool, message []byte)
+	WebSocketConnect(c *gin.Context, socketId int, isWorker bool)
+	WebSocketDisconnect(socketId int, isWorker bool)
+	WebSocketMessage(socketId int, isWorker bool, message []byte)
 }
 
 type SocketConnection struct {
 	connection    *websocket.Conn
 	lock          *sync.Mutex
 	eventHandlers EventHandlers
-	isTapper      bool
+	isWorker      bool
 }
 
 type WebSocketParams struct {
@@ -55,7 +55,7 @@ var (
 	connectedWebsockets         map[int]*SocketConnection
 	connectedWebsocketIdCounter = 0
 	SocketGetBrowserHandler     gin.HandlerFunc
-	SocketGetTapperHandler      gin.HandlerFunc
+	SocketGetWorkerHandler      gin.HandlerFunc
 )
 
 func init() {
@@ -68,7 +68,7 @@ func WebSocketRoutes(app *gin.Engine, eventHandlers EventHandlers) {
 		websocketHandler(c, eventHandlers, false)
 	}
 
-	SocketGetTapperHandler = func(c *gin.Context) {
+	SocketGetWorkerHandler = func(c *gin.Context) {
 		websocketHandler(c, eventHandlers, true)
 	}
 
@@ -76,12 +76,12 @@ func WebSocketRoutes(app *gin.Engine, eventHandlers EventHandlers) {
 		SocketGetBrowserHandler(c)
 	})
 
-	app.GET("/wsTapper", func(c *gin.Context) { // TODO: add m2m authentication to this route
-		SocketGetTapperHandler(c)
+	app.GET("/wsWorker", func(c *gin.Context) { // TODO: add m2m authentication to this route
+		SocketGetWorkerHandler(c)
 	})
 }
 
-func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isTapper bool) {
+func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isWorker bool) {
 	ws, err := websocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Printf("failed to set websocket upgrade: %v", err)
@@ -92,7 +92,7 @@ func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isTapper bool
 
 	connectedWebsocketIdCounter++
 	socketId := connectedWebsocketIdCounter
-	connectedWebsockets[socketId] = &SocketConnection{connection: ws, lock: &sync.Mutex{}, eventHandlers: eventHandlers, isTapper: isTapper}
+	connectedWebsockets[socketId] = &SocketConnection{connection: ws, lock: &sync.Mutex{}, eventHandlers: eventHandlers, isWorker: isWorker}
 
 	websocketIdsLock.Unlock()
 
@@ -102,7 +102,7 @@ func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isTapper bool
 		}
 	}()
 
-	eventHandlers.WebSocketConnect(c, socketId, isTapper)
+	eventHandlers.WebSocketConnect(c, socketId, isWorker)
 
 	startTimeBytes, _ := models.CreateWebsocketStartTimeMessage(utils.StartTime)
 
@@ -122,7 +122,7 @@ func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isTapper bool
 			break
 		}
 
-		eventHandlers.WebSocketMessage(socketId, isTapper, msg)
+		eventHandlers.WebSocketMessage(socketId, isWorker, msg)
 	}
 }
 
@@ -162,5 +162,5 @@ func socketCleanup(socketId int, socketConnection *SocketConnection) {
 	connectedWebsockets[socketId] = nil
 	websocketIdsLock.Unlock()
 
-	socketConnection.eventHandlers.WebSocketDisconnect(socketId, socketConnection.isTapper)
+	socketConnection.eventHandlers.WebSocketDisconnect(socketId, socketConnection.isWorker)
 }

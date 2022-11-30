@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	kubesharkhttp "github.com/kubeshark/base/pkg/extensions/http"
 )
 
@@ -67,7 +67,7 @@ func TestValid(t *testing.T) {
 				t.Errorf("failed: %v, ", requestErr)
 			}
 
-			extensionHttp := &tapApi.Extension{}
+			extensionHttp := &baseApi.Extension{}
 			dissectorHttp := kubesharkhttp.NewDissector()
 			dissectorHttp.Register(extensionHttp)
 			extensionHttp.Dissector = dissectorHttp
@@ -81,7 +81,7 @@ func TestValid(t *testing.T) {
 			if err != nil {
 				t.Errorf("failed marshaling entry: %v, ", err)
 			}
-			var entryUnmarshalled *tapApi.Entry
+			var entryUnmarshalled *baseApi.Entry
 			if err := json.Unmarshal(entryMarshalled, &entryUnmarshalled); err != nil {
 				t.Errorf("failed unmarshaling entry: %v, ", err)
 			}
@@ -92,7 +92,7 @@ func TestValid(t *testing.T) {
 				t.Errorf("failed: %v, ", err)
 			}
 
-			result := &tapApi.EntryWrapper{
+			result := &baseApi.EntryWrapper{
 				Protocol:       *extension.Protocol,
 				Representation: string(representation),
 				Data:           entry,

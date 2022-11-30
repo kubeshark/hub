@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -19,38 +19,38 @@ const (
 )
 
 var (
-	TCPEntryA = &tapApi.TCP{
+	TCPEntryA = &baseApi.TCP{
 		Name: a,
 		Port: Port,
 		IP:   fmt.Sprintf("%s.%s", Ip, a),
 	}
-	TCPEntryB = &tapApi.TCP{
+	TCPEntryB = &baseApi.TCP{
 		Name: b,
 		Port: Port,
 		IP:   fmt.Sprintf("%s.%s", Ip, b),
 	}
-	TCPEntryC = &tapApi.TCP{
+	TCPEntryC = &baseApi.TCP{
 		Name: c,
 		Port: Port,
 		IP:   fmt.Sprintf("%s.%s", Ip, c),
 	}
-	TCPEntryD = &tapApi.TCP{
+	TCPEntryD = &baseApi.TCP{
 		Name: d,
 		Port: Port,
 		IP:   fmt.Sprintf("%s.%s", Ip, d),
 	}
-	TCPEntryUnresolved = &tapApi.TCP{
+	TCPEntryUnresolved = &baseApi.TCP{
 		Name: "",
 		Port: Port,
 		IP:   Ip,
 	}
-	TCPEntryUnresolved2 = &tapApi.TCP{
+	TCPEntryUnresolved2 = &baseApi.TCP{
 		Name: "",
 		Port: Port,
 		IP:   fmt.Sprintf("%s.%s", Ip, UnresolvedNodeName),
 	}
-	ProtocolHttp = &tapApi.Protocol{
-		ProtocolSummary: tapApi.ProtocolSummary{
+	ProtocolHttp = &baseApi.Protocol{
+		ProtocolSummary: baseApi.ProtocolSummary{
 			Name:         "http",
 			Version:      "1.1",
 			Abbreviation: "HTTP",
@@ -64,8 +64,8 @@ var (
 		Ports:           []string{"80", "443", "8080"},
 		Priority:        0,
 	}
-	ProtocolRedis = &tapApi.Protocol{
-		ProtocolSummary: tapApi.ProtocolSummary{
+	ProtocolRedis = &baseApi.Protocol{
+		ProtocolSummary: baseApi.ProtocolSummary{
 			Name:         "redis",
 			Version:      "3.x",
 			Abbreviation: "REDIS",

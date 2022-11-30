@@ -22,7 +22,7 @@ import (
 	"github.com/kubeshark/hub/pkg/app"
 	"github.com/kubeshark/hub/pkg/config"
 
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 )
 
 var namespace = flag.String("namespace", "", "Resolve IPs if they belong to resources in this namespace (default is all)")
@@ -46,11 +46,11 @@ func main() {
 	log.Print("Exiting")
 }
 
-func hostApi(socketHarOutputChannel chan<- *tapApi.OutputChannelItem) *gin.Engine {
+func hostApi(socketHarOutputChannel chan<- *baseApi.OutputChannelItem) *gin.Engine {
 	ginApp := gin.Default()
 
 	ginApp.GET("/echo", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "Here is Kubeshark agent")
+		c.JSON(http.StatusOK, "It's running.")
 	})
 
 	eventHandlers := api.RoutesEventHandlers{

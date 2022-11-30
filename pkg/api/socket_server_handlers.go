@@ -8,10 +8,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/dependency"
-	"github.com/kubeshark/hub/pkg/providers/tappedPods"
-	"github.com/kubeshark/hub/pkg/providers/tappers"
+	"github.com/kubeshark/hub/pkg/providers/targettedPods"
+	"github.com/kubeshark/hub/pkg/providers/workers"
 
-	tapApi "github.com/kubeshark/base/pkg/api"
+	baseApi "github.com/kubeshark/base/pkg/api"
 
 	"github.com/kubeshark/base/pkg/models"
 )
@@ -21,25 +21,25 @@ type BrowserClient struct {
 }
 
 var browserClients = make(map[int]*BrowserClient, 0)
-var tapperClientSocketUUIDs = make([]int, 0)
+var workerClientSocketUUIDs = make([]int, 0)
 var socketListLock = sync.Mutex{}
 
 type RoutesEventHandlers struct {
 	EventHandlers
-	SocketOutChannel chan<- *tapApi.OutputChannelItem
+	SocketOutChannel chan<- *baseApi.OutputChannelItem
 }
 
-func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isTapper bool) {
-	if isTapper {
-		log.Printf("Websocket event - Tapper connected, socket ID: %d", socketId)
-		tappers.Connected()
+func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isWorker bool) {
+	if isWorker {
+		log.Printf("Websocket event - Worker connected, socket ID: %d", socketId)
+		workers.Connected()
 
 		socketListLock.Lock()
-		tapperClientSocketUUIDs = append(tapperClientSocketUUIDs, socketId)
+		workerClientSocketUUIDs = append(workerClientSocketUUIDs, socketId)
 		socketListLock.Unlock()
 
-		nodeToTappedPodMap := tappedPods.GetNodeToTappedPodMap()
-		SendTappedPods(socketId, nodeToTappedPodMap)
+		nodeToTargettedPodsMap := targettedPods.GetNodeToTargettedPodsMap()
+		SendTargettedPods(socketId, nodeToTargettedPodsMap)
 	} else {
 		log.Printf("Websocket event - Browser socket connected, socket ID: %d", socketId)
 
@@ -47,17 +47,17 @@ func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isT
 		browserClients[socketId] = &BrowserClient{}
 		socketListLock.Unlock()
 
-		BroadcastTappedPodsStatus()
+		BroadcastTargettedPodsStatus()
 	}
 }
 
-func (h *RoutesEventHandlers) WebSocketDisconnect(socketId int, isTapper bool) {
-	if isTapper {
-		log.Printf("Websocket event - Tapper disconnected, socket ID:  %d", socketId)
-		tappers.Disconnected()
+func (h *RoutesEventHandlers) WebSocketDisconnect(socketId int, isWorker bool) {
+	if isWorker {
+		log.Printf("Websocket event - Worker disconnected, socket ID:  %d", socketId)
+		workers.Disconnected()
 
 		socketListLock.Lock()
-		removeSocketUUIDFromTapperSlice(socketId)
+		removeSocketUUIDFromWorkerSlice(socketId)
 		socketListLock.Unlock()
 	} else {
 		log.Printf("Websocket event - Browser socket disconnected, socket ID:  %d", socketId)
@@ -80,8 +80,8 @@ func BroadcastToBrowserClients(message []byte) {
 	}
 }
 
-func BroadcastToTapperClients(message []byte) {
-	for _, socketId := range tapperClientSocketUUIDs {
+func BroadcastToWorkerClients(message []byte) {
+	for _, socketId := range workerClientSocketUUIDs {
 		go func(socketId int) {
 			if err := SendToSocket(socketId, message); err != nil {
 				log.Print(err)
@@ -90,9 +90,9 @@ func BroadcastToTapperClients(message []byte) {
 	}
 }
 
-func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isTapper bool, message []byte) {
-	if isTapper {
-		HandleTapperIncomingMessage(message, h.SocketOutChannel, BroadcastToBrowserClients)
+func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isWorker bool, message []byte) {
+	if isWorker {
+		HandleWorkerIncomingMessage(message, h.SocketOutChannel, BroadcastToBrowserClients)
 	} else {
 		// we initiate the basenine stream after the first websocket message we receive (it contains the entry query), we then store a cancelfunc to later cancel this stream
 		if browserClients[socketId] != nil && browserClients[socketId].dataStreamCancelFunc == nil {
@@ -116,21 +116,21 @@ func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isTapper bool, mess
 	}
 }
 
-func HandleTapperIncomingMessage(message []byte, socketOutChannel chan<- *tapApi.OutputChannelItem, broadcastMessageFunc func([]byte)) {
+func HandleWorkerIncomingMessage(message []byte, socketOutChannel chan<- *baseApi.OutputChannelItem, broadcastMessageFunc func([]byte)) {
 	var socketMessageBase models.WebSocketMessageMetadata
 	err := json.Unmarshal(message, &socketMessageBase)
 	if err != nil {
 		log.Printf("Could not unmarshal websocket message %v", err)
 	} else {
 		switch socketMessageBase.MessageType {
-		case models.WebSocketMessageTypeTappedEntry:
-			var tappedEntryMessage models.WebSocketTappedEntryMessage
-			err := json.Unmarshal(message, &tappedEntryMessage)
+		case models.WebSocketMessageTypeWorkerEntry:
+			var workerEntryMessage models.WebSocketWorkerEntryMessage
+			err := json.Unmarshal(message, &workerEntryMessage)
 			if err != nil {
 				log.Printf("Could not unmarshal message of message type %s %v", socketMessageBase.MessageType, err)
 			} else {
 				// NOTE: This is where the message comes back from the intermediate WebSocket to code.
-				socketOutChannel <- tappedEntryMessage.Data
+				socketOutChannel <- workerEntryMessage.Data
 			}
 		case models.WebSocketMessageTypeUpdateStatus:
 			var statusMessage models.WebSocketStatusMessage
@@ -146,12 +146,12 @@ func HandleTapperIncomingMessage(message []byte, socketOutChannel chan<- *tapApi
 	}
 }
 
-func removeSocketUUIDFromTapperSlice(uuidToRemove int) {
-	newUUIDSlice := make([]int, 0, len(tapperClientSocketUUIDs))
-	for _, uuid := range tapperClientSocketUUIDs {
+func removeSocketUUIDFromWorkerSlice(uuidToRemove int) {
+	newUUIDSlice := make([]int, 0, len(workerClientSocketUUIDs))
+	for _, uuid := range workerClientSocketUUIDs {
 		if uuid != uuidToRemove {
 			newUUIDSlice = append(newUUIDSlice, uuid)
 		}
 	}
-	tapperClientSocketUUIDs = newUUIDSlice
+	workerClientSocketUUIDs = newUUIDSlice
 }
