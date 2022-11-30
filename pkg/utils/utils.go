@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -33,26 +33,26 @@ func StartServer(app *gin.Engine, port int) {
 
 	go func() {
 		<-signals
-		log.Printf("Shutting down...")
+		log.Warn().Msg("Shutting down...")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		err := srv.Shutdown(ctx)
 		if err != nil {
-			log.Printf("%v", err)
+			log.Error().Err(err).Send()
 		}
 		os.Exit(0)
 	}()
 
 	// Run server.
-	log.Printf("Starting the server...")
+	log.Info().Msg("Starting the server...")
 	if err := app.Run(fmt.Sprintf(":%d", port)); err != nil {
-		log.Printf("Server is not running! Reason: %v", err)
+		log.Error().Err(err).Msg("Server is not running!")
 	}
 }
 
-func CheckErr(e error) {
-	if e != nil {
-		log.Printf("%v", e)
+func CheckErr(err error) {
+	if err != nil {
+		log.Error().Err(err).Send()
 	}
 }
 

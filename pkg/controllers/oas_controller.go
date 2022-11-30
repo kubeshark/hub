@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/chanced/openapi"
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/oas"
+	"github.com/rs/zerolog/log"
 )
 
 func GetOASServers(c *gin.Context) {
@@ -58,7 +58,7 @@ func GetOASAllSpecs(c *gin.Context) {
 		gen := value.(*oas.SpecGen)
 		spec, err := gen.GetSpec()
 		if err != nil {
-			log.Printf("Failed to obtain spec for service %s: %s", svc, err)
+			log.Error().Err(err).Str("service", svc).Msg("Failed to obtain spec for service:")
 			return true
 		}
 		res[svc] = spec

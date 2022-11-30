@@ -4,13 +4,13 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"log"
 	"reflect"
 	"sync"
 	"time"
 
 	"github.com/jinzhu/copier"
 	"github.com/kubeshark/base/pkg/api"
+	"github.com/rs/zerolog/log"
 )
 
 type GeneralStats struct {
@@ -266,7 +266,7 @@ func getFilteredBucketStatsCopy(startTime time.Time, endTime time.Time) BucketSt
 	bucketStatsCopy := BucketStats{}
 	bucketStatsLocker.Lock()
 	if err := copier.Copy(&bucketStatsCopy, bucketsStats); err != nil {
-		log.Printf("Error while copying src stats into temporary copied object")
+		log.Error().Err(err).Msg("While copying src stats into temporary copied object.")
 		return nil
 	}
 	bucketStatsLocker.Unlock()

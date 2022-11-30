@@ -3,17 +3,15 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	baseApi "github.com/kubeshark/base/pkg/api"
+	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/providers/targettedPods"
 	"github.com/kubeshark/hub/pkg/providers/workers"
-
-	baseApi "github.com/kubeshark/base/pkg/api"
-
-	"github.com/kubeshark/base/pkg/models"
+	"github.com/rs/zerolog/log"
 )
 
 type BrowserClient struct {
@@ -31,7 +29,7 @@ type RoutesEventHandlers struct {
 
 func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isWorker bool) {
 	if isWorker {
-		log.Printf("Websocket event - Worker connected, socket ID: %d", socketId)
+		log.Info().Int("socket-id", socketId).Msg("Worker connected.")
 		workers.Connected()
 
 		socketListLock.Lock()
@@ -41,7 +39,7 @@ func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isW
 		nodeToTargettedPodsMap := targettedPods.GetNodeToTargettedPodsMap()
 		SendTargettedPods(socketId, nodeToTargettedPodsMap)
 	} else {
-		log.Printf("Websocket event - Browser socket connected, socket ID: %d", socketId)
+		log.Info().Int("socket-id", socketId).Msg("Browser connected.")
 
 		socketListLock.Lock()
 		browserClients[socketId] = &BrowserClient{}
@@ -53,14 +51,14 @@ func (h *RoutesEventHandlers) WebSocketConnect(_ *gin.Context, socketId int, isW
 
 func (h *RoutesEventHandlers) WebSocketDisconnect(socketId int, isWorker bool) {
 	if isWorker {
-		log.Printf("Websocket event - Worker disconnected, socket ID:  %d", socketId)
+		log.Info().Int("socket-id", socketId).Msg("Worker disconnected.")
 		workers.Disconnected()
 
 		socketListLock.Lock()
 		removeSocketUUIDFromWorkerSlice(socketId)
 		socketListLock.Unlock()
 	} else {
-		log.Printf("Websocket event - Browser socket disconnected, socket ID:  %d", socketId)
+		log.Info().Int("socket-id", socketId).Msg("Browser disconnected.")
 		socketListLock.Lock()
 		if browserClients[socketId] != nil && browserClients[socketId].dataStreamCancelFunc != nil {
 			browserClients[socketId].dataStreamCancelFunc()
@@ -74,7 +72,7 @@ func BroadcastToBrowserClients(message []byte) {
 	for socketId := range browserClients {
 		go func(socketId int) {
 			if err := SendToSocket(socketId, message); err != nil {
-				log.Print(err)
+				log.Error().Err(err).Int("socket-id", socketId).Send()
 			}
 		}(socketId)
 	}
@@ -84,7 +82,7 @@ func BroadcastToWorkerClients(message []byte) {
 	for _, socketId := range workerClientSocketUUIDs {
 		go func(socketId int) {
 			if err := SendToSocket(socketId, message); err != nil {
-				log.Print(err)
+				log.Error().Err(err).Int("socket-id", socketId).Send()
 			}
 		}(socketId)
 	}
@@ -98,7 +96,7 @@ func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isWorker bool, mess
 		if browserClients[socketId] != nil && browserClients[socketId].dataStreamCancelFunc == nil {
 			var params WebSocketParams
 			if err := json.Unmarshal(message, &params); err != nil {
-				log.Printf("Error: [%d] %v", socketId, err)
+				log.Error().Err(err).Int("socket-id", socketId).Send()
 				return
 			}
 
@@ -107,7 +105,7 @@ func (h *RoutesEventHandlers) WebSocketMessage(socketId int, isWorker bool, mess
 			err := entriesStreamer.Get(ctx, socketId, &params)
 
 			if err != nil {
-				log.Printf("error initializing basenine stream for browser socket %d %+v", socketId, err)
+				log.Error().Err(err).Int("socket-id", socketId).Msg("While initializing a Basenine stream for the browser socket!")
 				cancelFunc()
 			} else {
 				browserClients[socketId].dataStreamCancelFunc = cancelFunc
@@ -120,14 +118,14 @@ func HandleWorkerIncomingMessage(message []byte, socketOutChannel chan<- *baseAp
 	var socketMessageBase models.WebSocketMessageMetadata
 	err := json.Unmarshal(message, &socketMessageBase)
 	if err != nil {
-		log.Printf("Could not unmarshal websocket message %v", err)
+		log.Error().Err(err).Msg("Couldn't unmarshal WebSocket message:")
 	} else {
 		switch socketMessageBase.MessageType {
 		case models.WebSocketMessageTypeWorkerEntry:
 			var workerEntryMessage models.WebSocketWorkerEntryMessage
 			err := json.Unmarshal(message, &workerEntryMessage)
 			if err != nil {
-				log.Printf("Could not unmarshal message of message type %s %v", socketMessageBase.MessageType, err)
+				log.Error().Err(err).Str("msg-type", string(socketMessageBase.MessageType)).Msg("Couldn't unmarshal message of message type:")
 			} else {
 				// NOTE: This is where the message comes back from the intermediate WebSocket to code.
 				socketOutChannel <- workerEntryMessage.Data
@@ -136,12 +134,12 @@ func HandleWorkerIncomingMessage(message []byte, socketOutChannel chan<- *baseAp
 			var statusMessage models.WebSocketStatusMessage
 			err := json.Unmarshal(message, &statusMessage)
 			if err != nil {
-				log.Printf("Could not unmarshal message of message type %s %v", socketMessageBase.MessageType, err)
+				log.Error().Err(err).Str("msg-type", string(socketMessageBase.MessageType)).Msg("Couldn't unmarshal message of message type:")
 			} else {
 				broadcastMessageFunc(message)
 			}
 		default:
-			log.Printf("Received socket message of type %s for which no handlers are defined", socketMessageBase.MessageType)
+			log.Error().Str("msg-type", string(socketMessageBase.MessageType)).Msg("Received a socket message type which no handlers are defined for!")
 		}
 	}
 }

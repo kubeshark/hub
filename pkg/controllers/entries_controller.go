@@ -1,20 +1,19 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/entries"
 	"github.com/kubeshark/hub/pkg/validation"
-
-	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 func HandleEntriesError(c *gin.Context, err error) bool {
 	if err != nil {
-		log.Printf("Error getting entry: %v", err)
+		log.Error().Err(err).Msg("Couldn't get the entry!")
 		_ = c.Error(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error":     true,

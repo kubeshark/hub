@@ -3,12 +3,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/hub/pkg/db"
+	"github.com/rs/zerolog/log"
 	basenine "github.com/up9inc/basenine/client/go"
 )
 
@@ -55,13 +55,13 @@ func initializeConnection() *basenine.Connection {
 	for {
 		connection, err := basenine.NewConnection(db.BasenineHost, db.BaseninePort)
 		if err != nil {
-			log.Printf("Can't establish a new connection to Basenine server: %v", err)
+			log.Error().Err(err).Msg("Can't establish a new connection to Basenine server:")
 			time.Sleep(db.BasenineReconnectInterval * time.Second)
 			continue
 		}
 
 		if err = connection.InsertMode(); err != nil {
-			log.Printf("Insert mode call failed: %v", err)
+			log.Error().Err(err).Msg("Insert mode call failed:")
 			connection.Close()
 			time.Sleep(db.BasenineReconnectInterval * time.Second)
 			continue

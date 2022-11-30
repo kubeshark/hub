@@ -1,7 +1,6 @@
 package targettedPods
 
 import (
-	"log"
 	"os"
 	"strings"
 	"sync"
@@ -9,6 +8,7 @@ import (
 	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/providers/workers"
 	"github.com/kubeshark/hub/pkg/utils"
+	"github.com/rs/zerolog/log"
 )
 
 const FilePath = models.DataDirPath + "targetted-pods.json"
@@ -24,7 +24,7 @@ func Get() []*models.PodInfo {
 	syncOnce.Do(func() {
 		if err := utils.ReadJsonFile(FilePath, &targettedPods); err != nil {
 			if !os.IsNotExist(err) {
-				log.Printf("Error reading targetted pods from file, err: %v", err)
+				log.Error().Err(err).Msg("While reading targetted pods form file.")
 			}
 		}
 	})
@@ -38,7 +38,7 @@ func Set(targettedPodsToSet []*models.PodInfo) {
 
 	targettedPods = targettedPodsToSet
 	if err := utils.SaveJsonFile(FilePath, targettedPods); err != nil {
-		log.Printf("Error saving targetted pods, err: %v", err)
+		log.Error().Err(err).Msg("While saving targetted pods.")
 	}
 }
 
@@ -60,7 +60,7 @@ func GetTargettedPodsStatus() []models.TargettedPodStatus {
 
 func SetNodeToTargettedPodMap(nodeToTargettedPodsMap models.NodeToPodsMap) {
 	summary := nodeToTargettedPodsMap.Summary()
-	log.Printf("Setting node to targetted pods map to %v", summary)
+	log.Debug().Interface("summary", summary).Msg("Setting node to targetted pods map:")
 
 	nodeHostToTargettedPodsMap = nodeToTargettedPodsMap
 }

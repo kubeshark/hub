@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -12,6 +11,7 @@ import (
 	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/utils"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -84,7 +84,7 @@ func WebSocketRoutes(app *gin.Engine, eventHandlers EventHandlers) {
 func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isWorker bool) {
 	ws, err := websocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("failed to set websocket upgrade: %v", err)
+		log.Error().Err(err).Msg("Failed to set WebSocket upgrade:")
 		return
 	}
 
@@ -107,16 +107,16 @@ func websocketHandler(c *gin.Context, eventHandlers EventHandlers, isWorker bool
 	startTimeBytes, _ := models.CreateWebsocketStartTimeMessage(utils.StartTime)
 
 	if err = SendToSocket(socketId, startTimeBytes); err != nil {
-		log.Print(err)
+		log.Error().Err(err).Send()
 	}
 
 	for {
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
 			if _, ok := err.(*websocket.CloseError); ok {
-				log.Printf("received websocket close message, socket id: %d", socketId)
+				log.Debug().Int("socket-id", socketId).Msg("Received WebSocket close message.")
 			} else {
-				log.Printf("error reading message, socket id: %d, error: %v", socketId, err)
+				log.Error().Err(err).Int("socket-id", socketId).Msg("While reading WebSocket message!")
 			}
 
 			break
@@ -155,7 +155,7 @@ func SendToSocket(socketId int, message []byte) error {
 func socketCleanup(socketId int, socketConnection *SocketConnection) {
 	err := socketConnection.connection.Close()
 	if err != nil {
-		log.Printf("error closing socket connection for socket id %d: %v", socketId, err)
+		log.Error().Err(err).Int("socket-id", socketId).Msg("Closing socket connection for:")
 	}
 
 	websocketIdsLock.Lock()

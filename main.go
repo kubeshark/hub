@@ -2,13 +2,16 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	baseApi "github.com/kubeshark/base/pkg/api"
+	"github.com/kubeshark/hub/pkg/api"
+	"github.com/kubeshark/hub/pkg/app"
+	"github.com/kubeshark/hub/pkg/config"
 	"github.com/kubeshark/hub/pkg/db"
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/entries"
@@ -17,21 +20,26 @@ import (
 	"github.com/kubeshark/hub/pkg/routes"
 	"github.com/kubeshark/hub/pkg/servicemap"
 	"github.com/kubeshark/hub/pkg/utils"
-
-	"github.com/kubeshark/hub/pkg/api"
-	"github.com/kubeshark/hub/pkg/app"
-	"github.com/kubeshark/hub/pkg/config"
-
-	baseApi "github.com/kubeshark/base/pkg/api"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 var namespace = flag.String("namespace", "", "Resolve IPs if they belong to resources in this namespace (default is all)")
 var port = flag.Int("port", 80, "Port number of the HTTP server")
+var debug = flag.Bool("debug", false, "Enable debug mode")
 
 func main() {
-	fmt.Println("Initializing the Hub")
-	initializeDependencies()
 	flag.Parse()
+
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
+
+	if *debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
+	log.Info().Msg("Initializing the Hub...")
+	initializeDependencies()
 
 	app.LoadExtensions()
 
@@ -43,7 +51,7 @@ func main() {
 	signal.Notify(signalChan, os.Interrupt)
 	<-signalChan
 
-	log.Print("Exiting")
+	log.Info().Msg("Exiting")
 }
 
 func hostApi(socketHarOutputChannel chan<- *baseApi.OutputChannelItem) *gin.Engine {
@@ -81,7 +89,7 @@ func hostApi(socketHarOutputChannel chan<- *baseApi.OutputChannelItem) *gin.Engi
 
 func runInApiServerMode(namespace string) *gin.Engine {
 	if err := config.LoadConfig(); err != nil {
-		log.Fatalf("Error loading config file %v", err)
+		log.Fatal().Err(err).Msg("While loading the config file!")
 	}
 	app.ConfigureBasenineServer(db.BasenineHost, db.BaseninePort, config.Config.MaxDBSizeBytes, config.Config.LogLevel, config.Config.InsertionFilter)
 	api.StartResolving(namespace)

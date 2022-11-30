@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/app"
 	"github.com/kubeshark/hub/pkg/db"
+	"github.com/rs/zerolog/log"
 	basenine "github.com/up9inc/basenine/client/go"
 )
 
@@ -60,7 +60,7 @@ func (e *BasenineEntriesProvider) GetEntries(entriesRequest *models.EntriesReque
 	var metadata *basenine.Metadata
 	err = json.Unmarshal(lastMeta, &metadata)
 	if err != nil {
-		log.Printf("Error recieving metadata: %v", err.Error())
+		log.Error().Err(err).Msg("While recieving metadata:")
 	}
 
 	return dataSlice, metadata, nil

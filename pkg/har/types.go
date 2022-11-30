@@ -2,9 +2,10 @@ package har
 
 import (
 	"encoding/base64"
-	"log"
 	"time"
 	"unicode/utf8"
+
+	"github.com/rs/zerolog/log"
 )
 
 /*
@@ -293,7 +294,7 @@ func b64Decoded(enc string, text string) (isBinary bool, asBytes []byte, asStrin
 	if enc == "base64" {
 		decoded, err := base64.StdEncoding.DecodeString(text)
 		if err != nil {
-			log.Printf("Failed to decode content as base64: %s", text)
+			log.Error().Err(err).Str("text", text).Msg("Failed to decode content as base64:")
 			return false, []byte(text), text
 		}
 		valid := utf8.Valid(decoded)

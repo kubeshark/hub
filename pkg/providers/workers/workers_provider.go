@@ -1,12 +1,12 @@
 package workers
 
 import (
-	"log"
 	"os"
 	"sync"
 
 	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/utils"
+	"github.com/rs/zerolog/log"
 )
 
 const FilePath = models.DataDirPath + "workers-status.json"
@@ -70,7 +70,7 @@ func initStatus() {
 			status = make(map[string]*models.WorkerStatus)
 
 			if !os.IsNotExist(err) {
-				log.Printf("Error reading workers status from file, err: %v", err)
+				log.Error().Err(err).Msg("While reading workers status from file.")
 			}
 		}
 	})
@@ -78,6 +78,6 @@ func initStatus() {
 
 func saveStatus() {
 	if err := utils.SaveJsonFile(FilePath, status); err != nil {
-		log.Printf("Error saving workers status, err: %v", err)
+		log.Error().Err(err).Msg("While saving workers status.")
 	}
 }

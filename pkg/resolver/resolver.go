@@ -4,12 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
-
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 
 	cmap "github.com/orcaman/concurrent-map"
+	"github.com/rs/zerolog/log"
 	corev1 "k8s.io/api/core/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
@@ -170,12 +169,12 @@ func (resolver *Resolver) saveResolvedName(key string, resolved string, namespac
 	if eventType == watch.Deleted {
 		resolver.nameMap.Remove(resolved)
 		resolver.nameMap.Remove(key)
-		log.Printf("setting %s=nil", key)
+		log.Info().Msg(fmt.Sprintf("Setting %s=nil", key))
 	} else {
 
 		resolver.nameMap.Set(key, &ResolvedObjectInfo{FullAddress: resolved, Namespace: namespace})
 		resolver.nameMap.Set(resolved, &ResolvedObjectInfo{FullAddress: resolved, Namespace: namespace})
-		log.Printf("setting %s=%s", key, resolved)
+		log.Info().Msg(fmt.Sprintf("Setting %s=%s", key, resolved))
 	}
 }
 
@@ -196,7 +195,7 @@ func (resolver *Resolver) infiniteErrorHandleRetryFunc(ctx context.Context, fun 
 			var statusError *k8serrors.StatusError
 			if errors.As(err, &statusError) {
 				if statusError.ErrStatus.Reason == metav1.StatusReasonForbidden {
-					log.Printf("Resolver loop encountered permission error, aborting event listening - %v", err)
+					log.Warn().Err(err).Msg("Resolver loop encountered permission error, aborting event listening...")
 					return
 				}
 			}

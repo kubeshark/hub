@@ -2,12 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
-
-	core "k8s.io/api/core/v1"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/base/pkg/models"
@@ -18,6 +15,8 @@ import (
 	"github.com/kubeshark/hub/pkg/providers/targettedPods"
 	"github.com/kubeshark/hub/pkg/providers/workers"
 	"github.com/kubeshark/hub/pkg/validation"
+	"github.com/rs/zerolog/log"
+	core "k8s.io/api/core/v1"
 )
 
 func HealthCheck(c *gin.Context) {
@@ -43,7 +42,7 @@ func PostTargettedPods(c *gin.Context) {
 
 	podInfos := kubernetes.GetPodInfosForPods(requestTargettedPods)
 
-	log.Printf("[Status] POST request: %d targetted pods", len(requestTargettedPods))
+	log.Info().Int("targetted-pods-count", len(requestTargettedPods)).Msg("POST request:")
 	targettedPods.Set(podInfos)
 	api.BroadcastTargettedPodsStatus()
 
@@ -64,7 +63,7 @@ func PostWorkerStatus(c *gin.Context) {
 		return
 	}
 
-	log.Printf("[Status] POST request, worker status: %v", workerStatus)
+	log.Info().Interface("worker-status", workerStatus).Msg("POST request:")
 	workers.SetStatus(workerStatus)
 	api.BroadcastTargettedPodsStatus()
 }

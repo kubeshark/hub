@@ -1,12 +1,11 @@
 package servicemap
 
 import (
-	"log"
 	"sync"
 
 	"github.com/jinzhu/copier"
-
 	baseApi "github.com/kubeshark/base/pkg/api"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -21,7 +20,7 @@ var once sync.Once
 func GetDefaultServiceMapInstance() *defaultServiceMap {
 	once.Do(func() {
 		instance = NewDefaultServiceMapGenerator()
-		log.Print("Service Map Initialized")
+		log.Info().Msg("Service Map Initialized.")
 	})
 	return instance
 }
@@ -188,7 +187,7 @@ func (s *defaultServiceMap) NewTCPEntry(src *baseApi.TCP, dst *baseApi.TCP, p *b
 			entry: &baseApi.TCP{},
 		}
 		if err := copier.Copy(srcEntry.entry, src); err != nil {
-			log.Printf("Error while copying src entry into src entry data")
+			log.Error().Err(err).Msg("While copying src entry into src entry data.")
 		}
 
 		srcEntry.entry.Name = UnresolvedNodeName
@@ -205,7 +204,7 @@ func (s *defaultServiceMap) NewTCPEntry(src *baseApi.TCP, dst *baseApi.TCP, p *b
 			entry: &baseApi.TCP{},
 		}
 		if err := copier.Copy(dstEntry.entry, dst); err != nil {
-			log.Printf("Error while copying dst entry into dst entry data")
+			log.Error().Err(err).Msg("While copying dst entry into dst entry data.")
 		}
 
 		dstEntry.entry.Name = UnresolvedNodeName

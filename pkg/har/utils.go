@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 func BuildHeaders(rawHeaders map[string]interface{}) ([]Header, string, string, string, string, string) {
@@ -162,8 +163,9 @@ func NewResponse(response map[string]interface{}) (harResponse *Response, err er
 			status, err = strconv.Atoi(_status)
 		}
 		if err != nil {
-			log.Printf("Failed converting status to int %s (%v,%+v)", err, err, err)
-			return nil, errors.New("failed converting response status to int for HAR")
+			msg := "Failed converting response status to int for HAR."
+			log.Error().Err(err).Msg(msg)
+			return nil, errors.New(msg)
 		}
 	}
 
@@ -183,14 +185,16 @@ func NewResponse(response map[string]interface{}) (harResponse *Response, err er
 func NewEntry(request map[string]interface{}, response map[string]interface{}, startTime time.Time, elapsedTime int64) (*Entry, error) {
 	harRequest, err := NewRequest(request)
 	if err != nil {
-		log.Printf("Failed converting request to HAR %s (%v,%+v)", err, err, err)
-		return nil, errors.New("failed converting request to HAR")
+		msg := "Failed converting request to HAR."
+		log.Error().Err(err).Msg(msg)
+		return nil, errors.New(msg)
 	}
 
 	harResponse, err := NewResponse(response)
 	if err != nil {
-		log.Printf("Failed converting response to HAR %s (%v,%+v)", err, err, err)
-		return nil, errors.New("failed converting response to HAR")
+		msg := "Failed converting response to HAR."
+		log.Error().Err(err).Msg(msg)
+		return nil, errors.New(msg)
 	}
 
 	if elapsedTime < 1 {

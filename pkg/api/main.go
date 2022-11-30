@@ -5,25 +5,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"sort"
 	"strings"
 	"time"
 
+	baseApi "github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/hub/pkg/dependency"
-	"github.com/kubeshark/hub/pkg/oas"
-	"github.com/kubeshark/hub/pkg/servicemap"
-
 	"github.com/kubeshark/hub/pkg/har"
 	"github.com/kubeshark/hub/pkg/holder"
+	"github.com/kubeshark/hub/pkg/oas"
 	"github.com/kubeshark/hub/pkg/providers"
-
 	"github.com/kubeshark/hub/pkg/resolver"
+	"github.com/kubeshark/hub/pkg/servicemap"
 	"github.com/kubeshark/hub/pkg/utils"
-
-	baseApi "github.com/kubeshark/base/pkg/api"
+	"github.com/rs/zerolog/log"
 )
 
 var k8sResolver *resolver.Resolver
@@ -32,7 +29,7 @@ func StartResolving(namespace string) {
 	errOut := make(chan error, 100)
 	res, err := resolver.NewFromInCluster(errOut, namespace)
 	if err != nil {
-		log.Printf("error creating k8s resolver %s", err)
+		log.Error().Err(err).Msg("While creating K8s resolver!")
 		return
 	}
 	ctx := context.Background()
@@ -40,7 +37,7 @@ func StartResolving(namespace string) {
 	go func() {
 		for {
 			err := <-errOut
-			log.Printf("name resolving error %s", err)
+			log.Error().Err(err).Msg("Name resolution failed:")
 		}
 	}()
 
@@ -58,7 +55,7 @@ func StartReadingEntries(harChannel <-chan *baseApi.OutputChannelItem, workingDi
 
 func startReadingFiles(workingDir string) {
 	if err := os.MkdirAll(workingDir, os.ModePerm); err != nil {
-		log.Printf("Failed to make dir: %s, err: %v", workingDir, err)
+		log.Error().Err(err).Str("dir", workingDir).Msg("Failed to create directory!")
 		return
 	}
 
@@ -75,7 +72,7 @@ func startReadingFiles(workingDir string) {
 		sort.Sort(utils.ByModTime(harFiles))
 
 		if len(harFiles) == 0 {
-			log.Printf("Waiting for new files")
+			log.Info().Msg("Waiting for new files")
 			time.Sleep(3 * time.Second)
 			continue
 		}
@@ -94,10 +91,6 @@ func startReadingFiles(workingDir string) {
 }
 
 func startReadingChannel(outputItems <-chan *baseApi.OutputChannelItem, extensionsMap map[string]*baseApi.Extension) {
-	if outputItems == nil {
-		panic("Channel of captured messages is nil")
-	}
-
 	for item := range outputItems {
 		extension := extensionsMap[item.Protocol.Name]
 		resolvedSource, resolvedDestination, namespace := resolveIP(item.ConnectionInfo)
@@ -110,13 +103,13 @@ func startReadingChannel(outputItems <-chan *baseApi.OutputChannelItem, extensio
 
 		data, err := json.Marshal(kubesharkEntry)
 		if err != nil {
-			log.Printf("Error while marshaling entry: %v", err)
+			log.Error().Err(err).Msg("While marshaling entry!")
 			continue
 		}
 
 		entryInserter := dependency.GetInstance(dependency.EntriesInserter).(EntryInserter)
 		if err := entryInserter.Insert(kubesharkEntry); err != nil {
-			log.Printf("Error inserting entry, err: %v", err)
+			log.Error().Err(err).Msg("While inserting entry!")
 		}
 
 		summary := extension.Dissector.Summarize(kubesharkEntry)
@@ -135,7 +128,7 @@ func resolveIP(connectionInfo *baseApi.ConnectionInfo) (resolvedSource string, r
 		unresolvedSource := connectionInfo.ClientIP
 		resolvedSourceObject := k8sResolver.Resolve(unresolvedSource)
 		if resolvedSourceObject == nil {
-			log.Printf("Cannot find resolved name to source: %s", unresolvedSource)
+			log.Debug().Str("source", unresolvedSource).Msg("Cannot find resolved name!")
 			if os.Getenv("SKIP_NOT_RESOLVED_SOURCE") == "1" {
 				return
 			}
@@ -147,7 +140,7 @@ func resolveIP(connectionInfo *baseApi.ConnectionInfo) (resolvedSource string, r
 		unresolvedDestination := fmt.Sprintf("%s:%s", connectionInfo.ServerIP, connectionInfo.ServerPort)
 		resolvedDestinationObject := k8sResolver.Resolve(unresolvedDestination)
 		if resolvedDestinationObject == nil {
-			log.Printf("Cannot find resolved name to dest: %s", unresolvedDestination)
+			log.Debug().Str("destination", unresolvedDestination).Msg("Cannot find resolved name!")
 			if os.Getenv("SKIP_NOT_RESOLVED_DEST") == "1" {
 				return
 			}
