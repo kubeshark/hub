@@ -7,10 +7,10 @@ import (
 	"log"
 	"time"
 
+	tapApi "github.com/kubeshark/base/pkg/api"
+	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/app"
 	"github.com/kubeshark/hub/pkg/db"
-	tapApi "github.com/kubeshark/worker/api"
-	"github.com/kubeshark/worker/models"
 	basenine "github.com/up9inc/basenine/client/go"
 )
 

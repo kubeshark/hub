@@ -23,7 +23,7 @@ import (
 	"github.com/kubeshark/hub/pkg/resolver"
 	"github.com/kubeshark/hub/pkg/utils"
 
-	tapApi "github.com/kubeshark/worker/api"
+	tapApi "github.com/kubeshark/base/pkg/api"
 )
 
 var k8sResolver *resolver.Resolver

@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
+	tapApi "github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/hub/pkg/db"
 	"github.com/kubeshark/hub/pkg/dependency"
-	tapApi "github.com/kubeshark/worker/api"
 	basenine "github.com/up9inc/basenine/client/go"
 )
 

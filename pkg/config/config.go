@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kubeshark/worker/models"
+	"github.com/kubeshark/base/pkg/models"
 )
 
 // these values are used when the config.json file is not present

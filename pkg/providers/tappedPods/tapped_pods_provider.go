@@ -6,9 +6,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/providers/tappers"
 	"github.com/kubeshark/hub/pkg/utils"
-	"github.com/kubeshark/worker/models"
 )
 
 const FilePath = models.DataDirPath + "tapped-pods.json"

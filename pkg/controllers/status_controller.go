@@ -10,6 +10,7 @@ import (
 	core "k8s.io/api/core/v1"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/api"
 	"github.com/kubeshark/hub/pkg/holder"
 	"github.com/kubeshark/hub/pkg/kubernetes"
@@ -17,7 +18,6 @@ import (
 	"github.com/kubeshark/hub/pkg/providers/tappedPods"
 	"github.com/kubeshark/hub/pkg/providers/tappers"
 	"github.com/kubeshark/hub/pkg/validation"
-	"github.com/kubeshark/worker/models"
 )
 
 func HealthCheck(c *gin.Context) {

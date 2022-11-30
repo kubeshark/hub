@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/kubeshark/base/pkg/models"
 	"github.com/kubeshark/hub/pkg/providers/tappedPods"
-	"github.com/kubeshark/worker/models"
 )
 
 func BroadcastTappedPodsStatus() {

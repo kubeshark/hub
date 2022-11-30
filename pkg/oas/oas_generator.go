@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"sync"
 
+	"github.com/kubeshark/base/pkg/api"
 	"github.com/kubeshark/hub/pkg/har"
-	"github.com/kubeshark/worker/api"
 )
 
 var (

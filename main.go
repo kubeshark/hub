@@ -22,7 +22,7 @@ import (
 	"github.com/kubeshark/hub/pkg/app"
 	"github.com/kubeshark/hub/pkg/config"
 
-	tapApi "github.com/kubeshark/worker/api"
+	tapApi "github.com/kubeshark/base/pkg/api"
 )
 
 var namespace = flag.String("namespace", "", "Resolve IPs if they belong to resources in this namespace (default is all)")

@@ -11,9 +11,9 @@ import (
 	"github.com/kubeshark/hub/pkg/providers/tappedPods"
 	"github.com/kubeshark/hub/pkg/providers/tappers"
 
-	tapApi "github.com/kubeshark/worker/api"
+	tapApi "github.com/kubeshark/base/pkg/api"
 
-	"github.com/kubeshark/worker/models"
+	"github.com/kubeshark/base/pkg/models"
 )
 
 type BrowserClient struct {

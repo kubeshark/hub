@@ -6,7 +6,7 @@ import (
 
 	"github.com/jinzhu/copier"
 
-	tapApi "github.com/kubeshark/worker/api"
+	tapApi "github.com/kubeshark/base/pkg/api"
 )
 
 const (
