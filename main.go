@@ -69,13 +69,8 @@ func hostApi(socketHarOutputChannel chan<- *baseApi.OutputChannelItem) *gin.Engi
 
 	api.WebSocketRoutes(ginApp, &eventHandlers)
 
-	if config.Config.OAS.Enable {
-		routes.OASRoutes(ginApp)
-	}
-
-	if config.Config.ServiceMap {
-		routes.ServiceMapRoutes(ginApp)
-	}
+	routes.OASRoutes(ginApp)
+	routes.ServiceMapRoutes(ginApp)
 
 	routes.QueryRoutes(ginApp)
 	routes.EntriesRoutes(ginApp)
@@ -94,25 +89,22 @@ func runInApiServerMode(namespace string) *gin.Engine {
 	app.ConfigureBasenineServer(db.BasenineHost, db.BaseninePort, config.Config.MaxDBSizeBytes, config.Config.LogLevel, config.Config.InsertionFilter)
 	api.StartResolving(namespace)
 
-	enableExpFeatureIfNeeded()
+	enableExpFeatures()
 
 	return hostApi(app.GetEntryInputChannel())
 }
 
-func enableExpFeatureIfNeeded() {
-	if config.Config.OAS.Enable {
-		oasGenerator := dependency.GetInstance(dependency.OasGeneratorDependency).(oas.OasGenerator)
-		oasGenerator.Start()
-	}
-	if config.Config.ServiceMap {
-		serviceMapGenerator := dependency.GetInstance(dependency.ServiceMapGeneratorDependency).(servicemap.ServiceMap)
-		serviceMapGenerator.Enable()
-	}
+func enableExpFeatures() {
+	oasGenerator := dependency.GetInstance(dependency.OasGeneratorDependency).(oas.OasGenerator)
+	oasGenerator.Start()
+
+	serviceMapGenerator := dependency.GetInstance(dependency.ServiceMapGeneratorDependency).(servicemap.ServiceMap)
+	serviceMapGenerator.Enable()
 }
 
 func initializeDependencies() {
 	dependency.RegisterGenerator(dependency.ServiceMapGeneratorDependency, func() interface{} { return servicemap.GetDefaultServiceMapInstance() })
-	dependency.RegisterGenerator(dependency.OasGeneratorDependency, func() interface{} { return oas.GetDefaultOasGeneratorInstance(config.Config.OAS.MaxExampleLen) })
+	dependency.RegisterGenerator(dependency.OasGeneratorDependency, func() interface{} { return oas.GetDefaultOasGeneratorInstance(10240) })
 	dependency.RegisterGenerator(dependency.EntriesInserter, func() interface{} { return api.GetBasenineEntryInserterInstance() })
 	dependency.RegisterGenerator(dependency.EntriesProvider, func() interface{} { return &entries.BasenineEntriesProvider{} })
 	dependency.RegisterGenerator(dependency.EntriesSocketStreamer, func() interface{} { return &api.BasenineEntryStreamer{} })

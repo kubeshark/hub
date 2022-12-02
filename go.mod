@@ -13,10 +13,11 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/jinzhu/copier v0.3.5
-	github.com/kubeshark/base v0.1.3
+	github.com/kubeshark/base v0.1.4
 	github.com/nav-inc/datetime v0.1.3
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/orcaman/concurrent-map v1.0.0
+	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.1
 	github.com/up9inc/basenine/client/go v0.0.0-20220612112747-3b28eeac9c51
 	github.com/wI2L/jsondiff v0.1.1
@@ -57,7 +58,6 @@ require (
 	github.com/ohler55/ojg v1.14.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rs/zerolog v1.28.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0 // indirect
 	github.com/segmentio/kafka-go v0.4.38 // indirect
 	github.com/tidwall/gjson v1.14.0 // indirect
