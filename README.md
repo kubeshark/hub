@@ -3,16 +3,4 @@
 The HTTP server that channels the captured traffic and traces using WebSockets to the client. The central
 piece of software that [workers](https://github.com/kubeshark/base/pkg) communicate with.
 
-## Go build
-
-Build:
-
-```shell
-go build -o hub .
-```
-
-Run:
-
-```shell
-./hub -port 8898
-```
+See [Makefile](./Makefile) for building and running the program.
