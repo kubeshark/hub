@@ -58,7 +58,7 @@ func hostApi(socketHarOutputChannel chan<- *baseApi.OutputChannelItem) *gin.Engi
 	ginApp := gin.Default()
 
 	ginApp.GET("/echo", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "It's running.")
+		c.String(http.StatusOK, "It's running.")
 	})
 
 	eventHandlers := api.RoutesEventHandlers{
