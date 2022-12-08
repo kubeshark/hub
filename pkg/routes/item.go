@@ -8,5 +8,5 @@ import (
 func ItemRoutes(ginApp *gin.Engine) {
 	routeGroup := ginApp.Group("/item")
 
-	routeGroup.GET("/:id", controllers.GetItem)
+	routeGroup.GET("/:worker/:id", controllers.GetItem)
 }

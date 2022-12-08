@@ -18,11 +18,12 @@ func handleError(c *gin.Context, err error) {
 }
 
 func GetItem(c *gin.Context) {
+	workerHost := c.Param("worker")
 	id := c.Param("id")
 	query := c.Query("q")
 
 	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:8897/item/%s", id), nil)
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://%s/item/%s", workerHost, id), nil)
 	if err != nil {
 		log.Error().Err(err).Str("pcap", id).Msg("Worker fetch item build request:")
 	}
