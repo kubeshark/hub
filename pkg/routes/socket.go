@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"sync"
@@ -65,7 +66,22 @@ func websocketHandler(c *gin.Context, workerHosts []string) {
 					continue
 				}
 
-				err = ws.WriteMessage(1, msg)
+				var object map[string]interface{}
+				if err := json.Unmarshal(msg, &object); err != nil {
+					log.Error().Err(err).Msg("WebSocket failed unmarshalling item:")
+					continue
+				}
+
+				object["worker"] = host
+
+				var data []byte
+				data, err = json.Marshal(object)
+				if err != nil {
+					log.Error().Err(err).Msg("WebSocket failed marshalling item:")
+					break
+				}
+
+				err = ws.WriteMessage(1, data)
 				if err != nil {
 					log.Error().Err(err).Msg("WebSocket server write:")
 					continue
