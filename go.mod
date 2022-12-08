@@ -67,7 +67,6 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tidwall/sjson v1.2.4 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
-	github.com/up9inc/basenine/client/go v0.0.0-20220612112747-3b28eeac9c51 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
