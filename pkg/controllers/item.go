@@ -55,5 +55,8 @@ func GetItem(c *gin.Context) {
 		return
 	}
 
+	payload["base"].(map[string]interface{})["worker"] = workerHost
+	payload["data"].(map[string]interface{})["worker"] = workerHost
+
 	c.JSON(http.StatusOK, payload)
 }
