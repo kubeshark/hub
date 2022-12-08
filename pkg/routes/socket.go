@@ -34,20 +34,24 @@ func websocketHandler(c *gin.Context) {
 	u := url.URL{Scheme: "ws", Host: "localhost:8897", Path: "/ws"}
 	log.Printf("connecting to %s", u.String())
 
-	wsd, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	wsc, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		log.Error().Err(err).Msg("WebSocket client dial:")
 		return
 	}
-	defer wsd.Close()
+	defer wsc.Close()
 
 	for {
-		_, msg, err := wsd.ReadMessage()
+		_, msg, err := wsc.ReadMessage()
 		if err != nil {
 			log.Error().Err(err).Msg("WebSocket client read:")
-			return
+			continue
 		}
 
-		ws.WriteMessage(1, msg)
+		err = ws.WriteMessage(1, msg)
+		if err != nil {
+			log.Error().Err(err).Msg("WebSocket server write:")
+			continue
+		}
 	}
 }
