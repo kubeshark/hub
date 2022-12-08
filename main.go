@@ -12,7 +12,6 @@ import (
 	"github.com/kubeshark/hub/pkg/api"
 	"github.com/kubeshark/hub/pkg/app"
 	"github.com/kubeshark/hub/pkg/config"
-	"github.com/kubeshark/hub/pkg/db"
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/entries"
 	"github.com/kubeshark/hub/pkg/middlewares"
@@ -73,10 +72,9 @@ func hostApi(socketHarOutputChannel chan<- *baseApi.OutputChannelItem) *gin.Engi
 	routes.ServiceMapRoutes(ginApp)
 
 	routes.QueryRoutes(ginApp)
-	routes.EntriesRoutes(ginApp)
+	routes.ItemRoutes(ginApp)
 	routes.MetadataRoutes(ginApp)
 	routes.StatusRoutes(ginApp)
-	routes.DbRoutes(ginApp)
 	routes.ReplayRoutes(ginApp)
 
 	return ginApp
@@ -86,7 +84,6 @@ func runInApiServerMode(namespace string) *gin.Engine {
 	if err := config.LoadConfig(); err != nil {
 		log.Fatal().Err(err).Msg("While loading the config file!")
 	}
-	app.ConfigureBasenineServer(db.BasenineHost, db.BaseninePort, config.Config.MaxDBSizeBytes, config.Config.LogLevel, config.Config.InsertionFilter)
 	api.StartResolving(namespace)
 
 	enableExpFeatures()
