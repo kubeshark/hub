@@ -19,10 +19,22 @@ func handleError(c *gin.Context, err error) {
 
 func GetItem(c *gin.Context) {
 	id := c.Param("id")
+	query := c.Query("q")
 
-	res, err := http.Get(fmt.Sprintf("http://localhost:8897/item/%s", id))
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:8897/item/%s", id), nil)
 	if err != nil {
-		log.Error().Err(err).Str("pcap", id).Msg("Worker fetch item:")
+		log.Error().Err(err).Str("pcap", id).Msg("Worker fetch item build request:")
+	}
+
+	q := req.URL.Query()
+	q.Add("q", query)
+
+	req.URL.RawQuery = q.Encode()
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Error().Err(err).Str("pcap", id).Msg("Worker fetch item do request:")
 		handleError(c, err)
 		return
 	}
