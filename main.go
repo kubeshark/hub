@@ -60,19 +60,14 @@ func hostApi(socketHarOutputChannel chan<- *baseApi.OutputChannelItem) *gin.Engi
 		c.String(http.StatusOK, "It's running.")
 	})
 
-	eventHandlers := api.RoutesEventHandlers{
-		SocketOutChannel: socketHarOutputChannel,
-	}
-
 	ginApp.Use(middlewares.CORSMiddleware())
-
-	api.WebSocketRoutes(ginApp, &eventHandlers)
 
 	routes.OASRoutes(ginApp)
 	routes.ServiceMapRoutes(ginApp)
 
 	routes.QueryRoutes(ginApp)
 	routes.ItemRoutes(ginApp)
+	routes.WebSocketRoutes(ginApp)
 	routes.MetadataRoutes(ginApp)
 	routes.StatusRoutes(ginApp)
 	routes.ReplayRoutes(ginApp)
@@ -102,8 +97,5 @@ func enableExpFeatures() {
 func initializeDependencies() {
 	dependency.RegisterGenerator(dependency.ServiceMapGeneratorDependency, func() interface{} { return servicemap.GetDefaultServiceMapInstance() })
 	dependency.RegisterGenerator(dependency.OasGeneratorDependency, func() interface{} { return oas.GetDefaultOasGeneratorInstance(10240) })
-	dependency.RegisterGenerator(dependency.EntriesInserter, func() interface{} { return api.GetBasenineEntryInserterInstance() })
 	dependency.RegisterGenerator(dependency.EntriesProvider, func() interface{} { return &entries.BasenineEntriesProvider{} })
-	dependency.RegisterGenerator(dependency.EntriesSocketStreamer, func() interface{} { return &api.BasenineEntryStreamer{} })
-	dependency.RegisterGenerator(dependency.EntryStreamerSocketConnector, func() interface{} { return &api.DefaultEntryStreamerSocketConnector{} })
 }

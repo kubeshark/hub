@@ -28,3 +28,6 @@ go.work
 
 # The executable
 hub
+
+# Python scripts for testing
+*.py

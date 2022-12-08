@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/base/pkg/models"
-	"github.com/kubeshark/hub/pkg/api"
 	"github.com/kubeshark/hub/pkg/holder"
 	"github.com/kubeshark/hub/pkg/kubernetes"
 	"github.com/kubeshark/hub/pkg/providers"
@@ -44,11 +43,9 @@ func PostTargettedPods(c *gin.Context) {
 
 	log.Info().Int("targetted-pods-count", len(requestTargettedPods)).Msg("POST request:")
 	targettedPods.Set(podInfos)
-	api.BroadcastTargettedPodsStatus()
 
 	nodeToTargettedPodMap := kubernetes.GetNodeHostToTargettedPodsMap(requestTargettedPods)
 	targettedPods.SetNodeToTargettedPodMap(nodeToTargettedPodMap)
-	api.BroadcastTargettedPodsToWorkers(nodeToTargettedPodMap)
 }
 
 func PostWorkerStatus(c *gin.Context) {
@@ -65,7 +62,6 @@ func PostWorkerStatus(c *gin.Context) {
 
 	log.Info().Interface("worker-status", workerStatus).Msg("POST request:")
 	workers.SetStatus(workerStatus)
-	api.BroadcastTargettedPodsStatus()
 }
 
 func GetConnectedWorkersCount(c *gin.Context) {

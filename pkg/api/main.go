@@ -107,11 +107,6 @@ func startReadingChannel(outputItems <-chan *baseApi.OutputChannelItem, extensio
 			continue
 		}
 
-		entryInserter := dependency.GetInstance(dependency.EntriesInserter).(EntryInserter)
-		if err := entryInserter.Insert(kubesharkEntry); err != nil {
-			log.Error().Err(err).Msg("While inserting entry!")
-		}
-
 		summary := extension.Dissector.Summarize(kubesharkEntry)
 		providers.EntryAdded(len(data), summary)
 

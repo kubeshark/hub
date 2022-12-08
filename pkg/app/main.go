@@ -71,7 +71,6 @@ func LoadExtensions() {
 		return Extensions[i].Protocol.Priority < Extensions[j].Protocol.Priority
 	})
 
-	api.InitMaps(ExtensionsMap, ProtocolsMap)
 	providers.InitProtocolToColor(ProtocolsMap)
 }
 
