@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,9 +24,11 @@ import (
 var namespace = flag.String("namespace", "", "Resolve IPs if they belong to resources in this namespace (default is all)")
 var port = flag.Int("port", 80, "Port number of the HTTP server")
 var debug = flag.Bool("debug", false, "Enable debug mode")
+var workerHostsFlag = flag.String("worker-hosts", "localhost:8897", "hostname:port pairs of worker instances to access their WebSocket and HTTP endpoints")
 
 func main() {
 	flag.Parse()
+	workerHosts := strings.Split(*workerHostsFlag, " ")
 
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
@@ -37,7 +40,7 @@ func main() {
 	log.Info().Msg("Initializing the Hub...")
 	initializeDependencies()
 
-	ginApp := runInApiServerMode(*namespace)
+	ginApp := runInApiServerMode(*namespace, workerHosts)
 
 	utils.StartServer(ginApp, *port)
 
@@ -48,7 +51,7 @@ func main() {
 	log.Info().Msg("Exiting")
 }
 
-func hostApi() *gin.Engine {
+func hostApi(workerHosts []string) *gin.Engine {
 	ginApp := gin.Default()
 
 	ginApp.GET("/echo", func(c *gin.Context) {
@@ -62,14 +65,14 @@ func hostApi() *gin.Engine {
 
 	routes.QueryRoutes(ginApp)
 	routes.ItemRoutes(ginApp)
-	routes.WebSocketRoutes(ginApp)
+	routes.WebSocketRoutes(ginApp, workerHosts)
 	routes.MetadataRoutes(ginApp)
 	routes.StatusRoutes(ginApp)
 
 	return ginApp
 }
 
-func runInApiServerMode(namespace string) *gin.Engine {
+func runInApiServerMode(namespace string, workerHosts []string) *gin.Engine {
 	if err := config.LoadConfig(); err != nil {
 		log.Fatal().Err(err).Msg("While loading the config file!")
 	}
@@ -77,7 +80,7 @@ func runInApiServerMode(namespace string) *gin.Engine {
 
 	enableExpFeatures()
 
-	return hostApi()
+	return hostApi(workerHosts)
 }
 
 func enableExpFeatures() {
