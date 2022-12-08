@@ -4,8 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/hub/pkg/db"
-	basenine "github.com/up9inc/basenine/client/go"
+	"github.com/kubeshark/base/pkg/languages/kfl"
 )
 
 type ValidateResponse struct {
@@ -18,7 +17,7 @@ func PostValidate(c *gin.Context) {
 	valid := true
 	message := ""
 
-	err := basenine.Validate(db.BasenineHost, db.BaseninePort, query)
+	err := kfl.Validate(query)
 	if err != nil {
 		valid = false
 		message = err.Error()
