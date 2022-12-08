@@ -31,8 +31,18 @@ func websocketHandler(c *gin.Context) {
 		return
 	}
 
+	_, query, err := ws.ReadMessage()
+	if err != nil {
+		log.Error().Err(err).Msg("WebSocket recieve query:")
+	}
+
 	u := url.URL{Scheme: "ws", Host: "localhost:8897", Path: "/ws"}
-	log.Printf("connecting to %s", u.String())
+
+	q := u.Query()
+	q.Add("q", string(query))
+	u.RawQuery = q.Encode()
+
+	log.Info().Str("url", u.String()).Msg("Connecting to the worker at:")
 
 	wsc, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
