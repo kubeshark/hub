@@ -16,7 +16,7 @@ test: ## Run the tests.
 lint: ## Lint the source code.
 	golangci-lint run
 
-run: ## Run the program. Requires Basenine being available on port 9099
+run: ## Run the program. Requires Worker being available on port 8897
 	./hub -port 8898 -debug
 
 docker-repo:
