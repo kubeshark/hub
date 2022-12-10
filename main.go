@@ -66,7 +66,6 @@ func hostApi(workerHosts []string) *gin.Engine {
 	routes.ItemRoutes(ginApp)
 	routes.WebSocketRoutes(ginApp, workerHosts)
 	routes.MetadataRoutes(ginApp)
-	routes.StatusRoutes(ginApp)
 
 	return ginApp
 }
