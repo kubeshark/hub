@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/jinzhu/copier v0.3.5
-	github.com/kubeshark/base v0.1.4
+	github.com/kubeshark/base v0.1.5
 	github.com/nav-inc/datetime v0.1.3
 	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.1
@@ -69,5 +69,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-
-replace github.com/kubeshark/base v0.1.4 => /home/mertyildiran/Documents/kubeshark/base
