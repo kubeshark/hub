@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/hub/pkg/api"
 	"github.com/kubeshark/hub/pkg/config"
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/middlewares"
@@ -76,7 +75,6 @@ func runInApiServerMode(namespace string, workerHosts []string) *gin.Engine {
 	if err := config.LoadConfig(); err != nil {
 		log.Fatal().Err(err).Msg("While loading the config file!")
 	}
-	api.StartResolving(namespace)
 
 	enableExpFeatures()
 
