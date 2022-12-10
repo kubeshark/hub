@@ -34,14 +34,17 @@ func websocketHandler(c *gin.Context, workerHosts []string) {
 		log.Error().Err(err).Msg("Failed to set WebSocket upgrade:")
 		return
 	}
+	defer ws.Close()
 
 	_, query, err := ws.ReadMessage()
 	if err != nil {
 		log.Error().Err(err).Msg("WebSocket recieve query:")
+		return
 	}
 
 	var wg sync.WaitGroup
 	for _, workerHost := range workerHosts {
+		wg.Add(1)
 		go func(host string) {
 			defer wg.Done()
 			u := url.URL{Scheme: "ws", Host: host, Path: "/ws"}
@@ -63,7 +66,7 @@ func websocketHandler(c *gin.Context, workerHosts []string) {
 				_, msg, err := wsc.ReadMessage()
 				if err != nil {
 					log.Error().Err(err).Msg("WebSocket client read:")
-					continue
+					return
 				}
 
 				var object map[string]interface{}
