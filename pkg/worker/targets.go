@@ -30,8 +30,7 @@ func PostTargettedPodsToWorkers() {
 		client := &http.Client{}
 		setTargettedUrl := fmt.Sprintf("http://%s/pods/set-targetted", workerHost)
 		log.Info().Str("url", setTargettedUrl).Msg("Doing set targetted pods request:")
-		client.Post(setTargettedUrl, "application/json", bytes.NewBuffer(podsMarshalled))
-		_, err := http.NewRequest(http.MethodPost, setTargettedUrl, nil)
+		_, err := client.Post(setTargettedUrl, "application/json", bytes.NewBuffer(podsMarshalled))
 		if err != nil {
 			log.Error().Err(err).Str("url", setTargettedUrl).Msg("Set targetted pods request:")
 		}

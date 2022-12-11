@@ -79,6 +79,10 @@ func GetMerge(c *gin.Context) {
 
 		contentDisposition := res.Header.Get("Content-Disposition")
 		_, params, err := mime.ParseMediaType(contentDisposition)
+		if err != nil {
+			log.Error().Err(err).Str("content-disposition", contentDisposition).Msg("Parse media type failure:")
+			return true
+		}
 		filename := params["filename"]
 
 		if res.Body != nil {
