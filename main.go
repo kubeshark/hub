@@ -12,6 +12,7 @@ import (
 	"github.com/kubeshark/hub/pkg/config"
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/middlewares"
+	"github.com/kubeshark/hub/pkg/misc"
 	"github.com/kubeshark/hub/pkg/oas"
 	"github.com/kubeshark/hub/pkg/routes"
 	"github.com/kubeshark/hub/pkg/servicemap"
@@ -28,6 +29,8 @@ var workerHostsFlag = flag.String("worker-hosts", worker.HostWithPort(worker.Def
 
 func main() {
 	flag.Parse()
+
+	misc.InitDataDir()
 	worker.InitHosts()
 	worker.AddHosts(strings.Split(*workerHostsFlag, " "))
 
@@ -69,6 +72,7 @@ func hostApi() *gin.Engine {
 	routes.WebSocketRoutes(ginApp)
 	routes.MetadataRoutes(ginApp)
 	routes.PodsRoutes(ginApp)
+	routes.PcapsRoutes(ginApp)
 
 	return ginApp
 }
