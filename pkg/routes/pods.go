@@ -9,4 +9,5 @@ func PodsRoutes(ginApp *gin.Engine) {
 	routeGroup := ginApp.Group("/pods")
 
 	routeGroup.POST("/set-worker", controllers.PostSetWorker)
+	routeGroup.POST("/set-targetted", controllers.PostSetTargetted)
 }
