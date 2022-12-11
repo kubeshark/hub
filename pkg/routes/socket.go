@@ -86,7 +86,7 @@ func websocketHandler(c *gin.Context) {
 				err = ws.WriteMessage(1, data)
 				if err != nil {
 					log.Error().Err(err).Msg("WebSocket server write:")
-					continue
+					return
 				}
 			}
 		}(workerHost.(string))
