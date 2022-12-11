@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/kubeshark/hub/pkg/worker"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,13 +23,11 @@ func init() {
 	websocketUpgrader.CheckOrigin = func(r *http.Request) bool { return true } // like cors for web socket
 }
 
-func WebSocketRoutes(app *gin.Engine, workerHosts []string) {
-	app.GET("/ws", func(c *gin.Context) {
-		websocketHandler(c, workerHosts)
-	})
+func WebSocketRoutes(app *gin.Engine) {
+	app.GET("/ws", websocketHandler)
 }
 
-func websocketHandler(c *gin.Context, workerHosts []string) {
+func websocketHandler(c *gin.Context) {
 	ws, err := websocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to set WebSocket upgrade:")
@@ -43,7 +42,7 @@ func websocketHandler(c *gin.Context, workerHosts []string) {
 	}
 
 	var wg sync.WaitGroup
-	for _, workerHost := range workerHosts {
+	worker.RangeHosts(func(workerHost, v interface{}) bool {
 		wg.Add(1)
 		go func(host string) {
 			defer wg.Done()
@@ -90,7 +89,9 @@ func websocketHandler(c *gin.Context, workerHosts []string) {
 					continue
 				}
 			}
-		}(workerHost)
-	}
+		}(workerHost.(string))
+
+		return true
+	})
 	wg.Wait()
 }
