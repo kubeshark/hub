@@ -89,7 +89,7 @@ func GetMerge(c *gin.Context) {
 			defer res.Body.Close()
 		}
 
-		filepath := fmt.Sprintf("%s/%s_%s", dir, workerHost, filename)
+		filepath := fmt.Sprintf("%s/worker_%s_%s", dir, workerHost, filename)
 		outFile, err := os.Create(filepath)
 		if err != nil {
 			log.Error().Err(err).Str("file", filepath).Msg("While creating file:")
