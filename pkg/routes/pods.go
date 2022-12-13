@@ -8,6 +8,8 @@ import (
 func PodsRoutes(ginApp *gin.Engine) {
 	routeGroup := ginApp.Group("/pods")
 
-	routeGroup.POST("/set-worker", controllers.PostSetWorker)
-	routeGroup.POST("/set-targetted", controllers.PostSetTargetted)
+	routeGroup.POST("/worker", controllers.PostWorker)
+
+	routeGroup.GET("/targetted", controllers.GetTargetted)
+	routeGroup.POST("/targetted", controllers.PostTargetted)
 }

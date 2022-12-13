@@ -8,5 +8,5 @@ import (
 func QueryRoutes(ginApp *gin.Engine) {
 	routeGroup := ginApp.Group("/query")
 
-	routeGroup.POST("/validate", controllers.PostValidate)
+	routeGroup.GET("/validate", controllers.GetValidate)
 }

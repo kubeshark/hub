@@ -8,7 +8,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-func PostSetWorker(c *gin.Context) {
+func PostWorker(c *gin.Context) {
 	var pod v1.Pod
 	if err := c.Bind(&pod); err != nil {
 		c.JSON(http.StatusBadRequest, err)
@@ -47,7 +47,27 @@ func PostSetWorker(c *gin.Context) {
 	})
 }
 
-func PostSetTargetted(c *gin.Context) {
+type Target struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+}
+
+func GetTargetted(c *gin.Context) {
+	var targets []Target
+	pods := worker.GetTarggetedPods()
+	for _, pod := range pods {
+		targets = append(targets, Target{
+			Name:      pod.GetObjectMeta().GetName(),
+			Namespace: pod.GetNamespace(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"targets": targets,
+	})
+}
+
+func PostTargetted(c *gin.Context) {
 	var pods []v1.Pod
 	if err := c.Bind(&pods); err != nil {
 		c.JSON(http.StatusBadRequest, err)

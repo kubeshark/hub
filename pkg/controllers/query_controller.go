@@ -12,8 +12,8 @@ type ValidateResponse struct {
 	Message string `json:"message"`
 }
 
-func PostValidate(c *gin.Context) {
-	query := c.PostForm("query")
+func GetValidate(c *gin.Context) {
+	query := c.Query("q")
 	valid := true
 	message := ""
 
