@@ -119,3 +119,25 @@ func GetMerge(c *gin.Context) {
 	c.Header("Content-Type", "application/octet-stream")
 	c.File(zipPath)
 }
+
+func GetReplay(c *gin.Context) {
+	workerHost := c.Param("worker")
+	id := c.Param("id")
+
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://%s/pcaps/replay/%s", workerHost, id), nil)
+	if err != nil {
+		log.Error().Err(err).Str("pcap", id).Msg("Worker replay PCAP build request:")
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Error().Err(err).Str("pcap", id).Msg("Worker replay PCAP do request:")
+		handleError(c, err)
+		return
+	}
+
+	c.JSON(res.StatusCode, gin.H{
+		"status": res.Status,
+	})
+}
