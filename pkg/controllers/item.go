@@ -47,6 +47,11 @@ func GetItem(c *gin.Context) {
 		return
 	}
 
+	if res.StatusCode != 200 {
+		c.JSON(res.StatusCode, body)
+		return
+	}
+
 	var payload map[string]interface{}
 	err = json.Unmarshal(body, &payload)
 	if err != nil {
