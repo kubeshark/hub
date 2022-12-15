@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -41,11 +40,21 @@ func websocketHandler(c *gin.Context) {
 		return
 	}
 
-	var wg sync.WaitGroup
+	done := make(chan bool, 1)
+
+	go func() {
+		for {
+			_, _, err := ws.ReadMessage()
+			if err != nil {
+				log.Debug().Err(err).Msg("WebSocket read:")
+				done <- true
+				return
+			}
+		}
+	}()
+
 	worker.RangeHosts(func(workerHost, v interface{}) bool {
-		wg.Add(1)
 		go func(host string) {
-			defer wg.Done()
 			u := url.URL{Scheme: "ws", Host: host, Path: "/ws"}
 
 			q := u.Query()
@@ -57,6 +66,7 @@ func websocketHandler(c *gin.Context) {
 			wsc, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 			if err != nil {
 				log.Error().Err(err).Msg("WebSocket client dial:")
+				done <- true
 				return
 			}
 			defer wsc.Close()
@@ -65,7 +75,7 @@ func websocketHandler(c *gin.Context) {
 				_, msg, err := wsc.ReadMessage()
 				if err != nil {
 					log.Error().Err(err).Msg("WebSocket client read:")
-					return
+					break
 				}
 
 				var object map[string]interface{}
@@ -86,12 +96,15 @@ func websocketHandler(c *gin.Context) {
 				err = ws.WriteMessage(1, data)
 				if err != nil {
 					log.Error().Err(err).Msg("WebSocket server write:")
-					return
+					break
 				}
 			}
+
+			done <- true
 		}(workerHost.(string))
 
 		return true
 	})
-	wg.Wait()
+
+	<-done
 }
