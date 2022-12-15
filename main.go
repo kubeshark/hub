@@ -13,7 +13,6 @@ import (
 	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/middlewares"
 	"github.com/kubeshark/hub/pkg/misc"
-	"github.com/kubeshark/hub/pkg/oas"
 	"github.com/kubeshark/hub/pkg/routes"
 	"github.com/kubeshark/hub/pkg/servicemap"
 	"github.com/kubeshark/hub/pkg/utils"
@@ -64,7 +63,6 @@ func hostApi() *gin.Engine {
 
 	ginApp.Use(middlewares.CORSMiddleware())
 
-	routes.OASRoutes(ginApp)
 	routes.ServiceMapRoutes(ginApp)
 
 	routes.QueryRoutes(ginApp)
@@ -88,14 +86,10 @@ func runInApiServerMode(namespace string) *gin.Engine {
 }
 
 func enableExpFeatures() {
-	oasGenerator := dependency.GetInstance(dependency.OasGeneratorDependency).(oas.OasGenerator)
-	oasGenerator.Start()
-
 	serviceMapGenerator := dependency.GetInstance(dependency.ServiceMapGeneratorDependency).(servicemap.ServiceMap)
 	serviceMapGenerator.Enable()
 }
 
 func initializeDependencies() {
 	dependency.RegisterGenerator(dependency.ServiceMapGeneratorDependency, func() interface{} { return servicemap.GetDefaultServiceMapInstance() })
-	dependency.RegisterGenerator(dependency.OasGeneratorDependency, func() interface{} { return oas.GetDefaultOasGeneratorInstance(10240) })
 }
