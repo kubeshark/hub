@@ -10,11 +10,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/config"
-	"github.com/kubeshark/hub/pkg/dependency"
 	"github.com/kubeshark/hub/pkg/middlewares"
 	"github.com/kubeshark/hub/pkg/misc"
 	"github.com/kubeshark/hub/pkg/routes"
-	"github.com/kubeshark/hub/pkg/servicemap"
 	"github.com/kubeshark/hub/pkg/utils"
 	"github.com/kubeshark/hub/pkg/worker"
 	"github.com/rs/zerolog"
@@ -41,7 +39,6 @@ func main() {
 	}
 
 	log.Info().Msg("Initializing the Hub...")
-	initializeDependencies()
 
 	ginApp := runInApiServerMode(*namespace)
 
@@ -63,8 +60,6 @@ func hostApi() *gin.Engine {
 
 	ginApp.Use(middlewares.CORSMiddleware())
 
-	routes.ServiceMapRoutes(ginApp)
-
 	routes.QueryRoutes(ginApp)
 	routes.ItemRoutes(ginApp)
 	routes.WebSocketRoutes(ginApp)
@@ -80,16 +75,5 @@ func runInApiServerMode(namespace string) *gin.Engine {
 		log.Fatal().Err(err).Msg("While loading the config file!")
 	}
 
-	enableExpFeatures()
-
 	return hostApi()
-}
-
-func enableExpFeatures() {
-	serviceMapGenerator := dependency.GetInstance(dependency.ServiceMapGeneratorDependency).(servicemap.ServiceMap)
-	serviceMapGenerator.Enable()
-}
-
-func initializeDependencies() {
-	dependency.RegisterGenerator(dependency.ServiceMapGeneratorDependency, func() interface{} { return servicemap.GetDefaultServiceMapInstance() })
 }
