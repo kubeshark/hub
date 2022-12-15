@@ -53,7 +53,7 @@ type Target struct {
 }
 
 func GetTargetted(c *gin.Context) {
-	var targets []Target
+	targets := make([]Target, 0)
 	pods := worker.GetTarggetedPods()
 	for _, pod := range pods {
 		targets = append(targets, Target{
