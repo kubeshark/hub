@@ -40,6 +40,10 @@ func websocketHandler(c *gin.Context) {
 		return
 	}
 
+	if worker.HostsLen() == 0 {
+		return
+	}
+
 	done := make(chan bool, 1)
 
 	go func() {
