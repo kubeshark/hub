@@ -35,7 +35,7 @@ RUN go build -ldflags="-extldflags=-static -s -w" -o hub .
 ### The shipped image
 ARG TARGETARCH=amd64
 FROM ${TARGETARCH}/busybox:latest
-# gin-gonic runs in debug mode without this
+
 ENV GIN_MODE=release
 
 WORKDIR /app/data/
