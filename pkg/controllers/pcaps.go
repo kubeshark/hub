@@ -24,7 +24,7 @@ func GetTotalTcpStreams(c *gin.Context) {
 	worker.RangeHosts(func(workerHost, v interface{}) bool {
 		client := &http.Client{}
 		getTotalTcpStreamsUrl := fmt.Sprintf("http://%s/pcaps/total-tcp-streams", workerHost)
-		log.Info().Str("url", getTotalTcpStreamsUrl).Msg("Doing get total TCP streams request:")
+		log.Debug().Str("url", getTotalTcpStreamsUrl).Msg("Doing get total TCP streams request:")
 		res, err := client.Get(getTotalTcpStreamsUrl)
 		if err != nil {
 			log.Error().Err(err).Str("url", getTotalTcpStreamsUrl).Msg("Get total TCP streams request:")
@@ -70,10 +70,10 @@ func GetMerge(c *gin.Context) {
 	worker.RangeHosts(func(workerHost, v interface{}) bool {
 		client := &http.Client{}
 		getPcapsMerge := fmt.Sprintf("http://%s/pcaps/merge", workerHost)
-		log.Info().Str("url", getPcapsMerge).Msg("Doing get total TCP streams request:")
+		log.Debug().Str("url", getPcapsMerge).Msg("Doing PCAP merge request:")
 		res, err := client.Get(getPcapsMerge)
 		if err != nil {
-			log.Error().Err(err).Str("url", getPcapsMerge).Msg("Get total TCP streams request:")
+			log.Error().Err(err).Str("url", getPcapsMerge).Msg("PCAP merge request:")
 			return true
 		}
 
