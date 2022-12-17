@@ -53,7 +53,9 @@ func websocketHandler(c *gin.Context) {
 		}
 	}()
 
+	var rangeCount uint64
 	worker.RangeHosts(func(workerHost, v interface{}) bool {
+		rangeCount++
 		go func(host string) {
 			u := url.URL{Scheme: "ws", Host: host, Path: "/ws"}
 
@@ -105,6 +107,11 @@ func websocketHandler(c *gin.Context) {
 
 		return true
 	})
+
+	// Workaround for empty `workerHosts *sync.Map` case
+	if rangeCount == 0 {
+		done <- true
+	}
 
 	<-done
 }
