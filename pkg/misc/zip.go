@@ -10,7 +10,7 @@ import (
 )
 
 func ZipIt(dir string) (zipName string, zipPath string, err error) {
-	zipName = fmt.Sprintf("kubeshark_%d.zip", time.Now().UnixNano())
+	zipName = fmt.Sprintf("kubeshark_%d.zip", time.Now().Unix())
 	zipPath = BuildDataFilePath("", zipName)
 	var file *os.File
 	file, err = os.Create(zipPath)

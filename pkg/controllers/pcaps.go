@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"mime"
 	"net/http"
 	"os"
 
@@ -69,37 +68,16 @@ func GetMerge(c *gin.Context) {
 
 	worker.RangeHosts(func(workerHost, v interface{}) bool {
 		client := &http.Client{}
-		getPcapsMerge := fmt.Sprintf("http://%s/pcaps/merge", workerHost)
-		log.Debug().Str("url", getPcapsMerge).Msg("Doing PCAP merge request:")
-		res, err := client.Get(getPcapsMerge)
+		w := workerHost.(string)
+
+		err := misc.FetchMergedPcapFile(client, dir, w)
 		if err != nil {
-			log.Error().Err(err).Str("url", getPcapsMerge).Msg("PCAP merge request:")
 			return true
 		}
 
-		contentDisposition := res.Header.Get("Content-Disposition")
-		_, params, err := mime.ParseMediaType(contentDisposition)
+		err = misc.FetchNameResolutionHistory(client, dir, w)
 		if err != nil {
-			log.Error().Err(err).Str("content-disposition", contentDisposition).Msg("Parse media type failure:")
 			return true
-		}
-		filename := params["filename"]
-
-		if res.Body != nil {
-			defer res.Body.Close()
-		}
-
-		filepath := fmt.Sprintf("%s/worker_%s_%s", dir, workerHost, filename)
-		outFile, err := os.Create(filepath)
-		if err != nil {
-			log.Error().Err(err).Str("file", filepath).Msg("While creating file:")
-			return true
-		}
-		defer outFile.Close()
-
-		_, err = io.Copy(outFile, res.Body)
-		if err != nil {
-			log.Error().Err(err).Str("file", filepath).Msg("Couldn't copy the download file:")
 		}
 
 		return true
