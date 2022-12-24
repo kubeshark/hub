@@ -61,6 +61,7 @@ func websocketHandler(c *gin.Context) {
 
 			q := u.Query()
 			q.Add("q", string(query))
+			q.Add("worker", host)
 			u.RawQuery = q.Encode()
 
 			log.Info().Str("url", u.String()).Msg("Connecting to the worker at:")
@@ -85,8 +86,6 @@ func websocketHandler(c *gin.Context) {
 					log.Error().Err(err).Msg("WebSocket failed unmarshalling item:")
 					continue
 				}
-
-				object["worker"] = host
 
 				var data []byte
 				data, err = json.Marshal(object)

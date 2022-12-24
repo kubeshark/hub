@@ -30,6 +30,7 @@ func GetItem(c *gin.Context) {
 
 	q := req.URL.Query()
 	q.Add("q", query)
+	q.Add("worker", workerHost)
 
 	req.URL.RawQuery = q.Encode()
 
@@ -59,9 +60,6 @@ func GetItem(c *gin.Context) {
 		handleError(c, err)
 		return
 	}
-
-	payload["base"].(map[string]interface{})["worker"] = workerHost
-	payload["data"].(map[string]interface{})["worker"] = workerHost
 
 	c.JSON(http.StatusOK, payload)
 }

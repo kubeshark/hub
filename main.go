@@ -27,12 +27,12 @@ var workerHostsFlag = flag.String("worker-hosts", worker.HostWithPort(worker.Def
 func main() {
 	flag.Parse()
 
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
+
 	misc.InitDataDir()
 	worker.InitHosts()
 	worker.AddHosts(strings.Split(*workerHostsFlag, " "))
-
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
 
 	if *debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
