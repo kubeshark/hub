@@ -57,6 +57,47 @@ func GetTotalTcpStreams(c *gin.Context) {
 	})
 }
 
+func GetDownloadPcap(c *gin.Context) {
+	workerHost := c.Param("worker")
+	id := c.Param("id")
+
+	dir, err := os.MkdirTemp(misc.GetDataDir(), "singlecap")
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create temp directory!")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	defer os.RemoveAll(dir)
+
+	client := &http.Client{}
+
+	err = misc.FetchPcapFile(client, dir, workerHost, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	err = misc.FetchNameResolutionHistory(client, dir, workerHost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	zipName, zipPath, err := misc.ZipIt(dir)
+	if err != nil {
+		log.Error().Str("dir", dir).Err(err).Msg("Couldn't ZIP the directory!")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	defer os.Remove(zipPath)
+
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Transfer-Encoding", "binary")
+	c.Header("Content-Disposition", "attachment; filename="+zipName)
+	c.Header("Content-Type", "application/octet-stream")
+	c.File(zipPath)
+}
+
 func GetMerge(c *gin.Context) {
 	dir, err := os.MkdirTemp(misc.GetDataDir(), "mergecap")
 	if err != nil {
