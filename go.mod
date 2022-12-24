@@ -9,7 +9,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/kubeshark/base v0.1.7
+	github.com/kubeshark/base v0.2.0
 	github.com/rs/zerolog v1.28.0
 	k8s.io/api v0.23.3
 	k8s.io/apimachinery v0.23.3
