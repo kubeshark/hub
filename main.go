@@ -52,7 +52,9 @@ func main() {
 }
 
 func hostApi() *gin.Engine {
-	ginApp := gin.Default()
+	ginApp := gin.New()
+	ginApp.Use(middlewares.DefaultStructuredLogger())
+	ginApp.Use(gin.Recovery())
 
 	ginApp.GET("/echo", func(c *gin.Context) {
 		c.String(http.StatusOK, "It's running.")

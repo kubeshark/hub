@@ -74,6 +74,8 @@ func websocketHandler(c *gin.Context) {
 			}
 			defer wsc.Close()
 
+			log.Info().Str("url", u.String()).Msg("Connected to the worker at:")
+
 			for {
 				_, msg, err := wsc.ReadMessage()
 				if err != nil {
