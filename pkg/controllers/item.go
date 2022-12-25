@@ -21,6 +21,7 @@ func GetItem(c *gin.Context) {
 	workerHost := c.Param("worker")
 	id := c.Param("id")
 	query := c.Query("q")
+	field := c.Query("field")
 
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://%s/item/%s", workerHost, id), nil)
@@ -61,5 +62,17 @@ func GetItem(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, payload)
+	var data interface{}
+	var ok bool
+	if field == "" {
+		data = payload
+	} else {
+		data, ok = payload[field]
+		if !ok {
+			c.JSON(http.StatusBadRequest, payload)
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, data)
 }
