@@ -4,9 +4,15 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kubeshark/hub/pkg/misc"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
+
+var debugPaths = []string{
+	"/pcaps/total-tcp-streams",
+	"/pods/targetted",
+}
 
 // DefaultStructuredLogger logs a gin HTTP request in JSON format. Uses the
 // default logger from rs/zerolog.
@@ -49,6 +55,8 @@ func StructuredLogger(logger *zerolog.Logger) gin.HandlerFunc {
 		var logEvent *zerolog.Event
 		if c.Writer.Status() >= 500 {
 			logEvent = logger.Error()
+		} else if misc.Contains(debugPaths, path) {
+			logEvent = logger.Debug()
 		} else {
 			logEvent = logger.Info()
 		}
