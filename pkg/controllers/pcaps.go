@@ -149,6 +149,12 @@ func GetReplay(c *gin.Context) {
 		log.Error().Err(err).Str("pcap", id).Msg("Worker replay PCAP build request:")
 	}
 
+	q := req.URL.Query()
+	q.Add("count", c.Query("count"))
+	q.Add("delay", c.Query("delay"))
+
+	req.URL.RawQuery = q.Encode()
+
 	res, err := client.Do(req)
 	if err != nil {
 		log.Error().Err(err).Str("pcap", id).Msg("Worker replay PCAP do request:")
