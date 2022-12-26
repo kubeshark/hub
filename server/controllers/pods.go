@@ -39,7 +39,11 @@ func PostWorker(c *gin.Context) {
 		msg = "Removed a worker host."
 	}
 
-	worker.PostTargettedPodsToWorkers()
+	err := worker.PostTargettedPodsToWorkers()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"msg":  msg,
@@ -75,5 +79,13 @@ func PostTargetted(c *gin.Context) {
 	}
 
 	worker.SetTargettedPods(pods)
-	worker.PostTargettedPodsToWorkers()
+	err := worker.PostTargettedPodsToWorkers()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"pods": len(pods),
+	})
 }
