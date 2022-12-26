@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/hub/pkg/controllers"
+	"github.com/kubeshark/hub/server/controllers"
 )
 
 func PcapsRoutes(ginApp *gin.Engine) {

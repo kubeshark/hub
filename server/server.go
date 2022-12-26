@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kubeshark/hub/pkg/middlewares"
-	"github.com/kubeshark/hub/pkg/routes"
+	"github.com/kubeshark/hub/server/middlewares"
+	"github.com/kubeshark/hub/server/routes"
 	"github.com/rs/zerolog/log"
 )
 
