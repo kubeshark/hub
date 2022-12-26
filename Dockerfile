@@ -22,7 +22,7 @@ ENV GOARCH=arm64
 ARG TARGETARCH=amd64
 FROM builder-for-${TARGETARCH} AS builder
 
-WORKDIR /app/build
+WORKDIR /app
 
 COPY go.mod .
 COPY go.sum .
@@ -41,7 +41,6 @@ ENV GIN_MODE=release
 WORKDIR /app/data/
 WORKDIR /app
 
-# Copy binary and config files from /build to root folder of scratch container.
-COPY --from=builder ["/app/build/hub", "."]
+COPY --from=builder ["/app/hub", "."]
 
 ENTRYPOINT ["/app/hub"]
