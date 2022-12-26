@@ -50,7 +50,7 @@ func WebsocketHandler(c *gin.Context) {
 	}()
 
 	var rangeCount uint64
-	worker.RangeHosts(func(workerHost, v interface{}) bool {
+	worker.RangeHosts(func(workerHost, name interface{}) bool {
 		rangeCount++
 		go func(host string) {
 			u := url.URL{Scheme: "ws", Host: host, Path: "/ws"}
@@ -58,6 +58,7 @@ func WebsocketHandler(c *gin.Context) {
 			q := u.Query()
 			q.Add("q", string(query))
 			q.Add("worker", host)
+			q.Add("node", name.(string))
 			u.RawQuery = q.Encode()
 
 			log.Info().Str("url", u.String()).Msg("Connecting to the worker at:")

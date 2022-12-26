@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kubeshark/hub/pkg/worker"
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,6 +33,7 @@ func GetItem(c *gin.Context) {
 	q := req.URL.Query()
 	q.Add("q", query)
 	q.Add("worker", workerHost)
+	q.Add("node", worker.GetHostName(workerHost))
 
 	req.URL.RawQuery = q.Encode()
 

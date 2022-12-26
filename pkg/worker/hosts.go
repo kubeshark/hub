@@ -22,14 +22,23 @@ func InitHosts() {
 	workerHosts = &sync.Map{}
 }
 
-func AddHost(host string) {
-	workerHosts.Store(host, true)
+func AddHost(host string, name string) {
+	workerHosts.Store(host, name)
 	log.Info().Str("host", host).Msg("Added worker host:")
 }
 
 func AddHosts(hosts []string) {
 	for _, host := range hosts {
-		AddHost(host)
+		AddHost(host, "")
+	}
+}
+
+func GetHostName(host string) string {
+	v, ok := workerHosts.Load(host)
+	if ok {
+		return v.(string)
+	} else {
+		return ""
 	}
 }
 
