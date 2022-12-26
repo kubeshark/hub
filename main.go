@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kubeshark/hub/pkg/config"
 	"github.com/kubeshark/hub/pkg/misc"
 	"github.com/kubeshark/hub/pkg/worker"
 	"github.com/kubeshark/hub/server"
@@ -34,10 +33,6 @@ func main() {
 	}
 
 	log.Info().Msg("Initializing the Hub...")
-
-	if err := config.LoadConfig(); err != nil {
-		log.Fatal().Err(err).Msg("While loading the config file!")
-	}
 
 	ginApp := server.Build()
 
