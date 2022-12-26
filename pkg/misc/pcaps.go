@@ -1,6 +1,8 @@
 package misc
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime"
@@ -49,11 +51,26 @@ func FetchPcapFile(client *http.Client, dir string, workerHost string, id string
 	return nil
 }
 
+type fetchMergePcapRequest struct {
+	Query string   `json:"query"`
+	Pcaps []string `json:"pcaps"`
+}
+
 // GET merged PCAP file from the worker
-func FetchMergedPcapFile(client *http.Client, dir string, workerHost string) error {
+func FetchMergedPcapFile(client *http.Client, dir string, query string, pcaps []string, workerHost string) error {
 	u := fmt.Sprintf("http://%s/pcaps/merge", workerHost)
+
+	var payload fetchMergePcapRequest
+	payload.Query = query
+	payload.Pcaps = pcaps
+	payloadStr, err := json.Marshal(payload)
+	if err != nil {
+		log.Error().Err(err).Str("url", u).Msg("PCAP merge JSON payload marshal error:")
+		return err
+	}
+
 	log.Debug().Str("url", u).Msg("Doing PCAP merge request:")
-	res, err := client.Get(u)
+	res, err := client.Post(u, "application/json", bytes.NewBuffer(payloadStr))
 	if err != nil {
 		log.Error().Err(err).Str("url", u).Msg("PCAP merge request:")
 		return err

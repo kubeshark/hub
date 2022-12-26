@@ -98,7 +98,18 @@ func GetDownloadPcap(c *gin.Context) {
 	c.File(zipPath)
 }
 
-func GetMerge(c *gin.Context) {
+type postMergeRequest struct {
+	Query string              `json:"query"`
+	Pcaps map[string][]string `json:"pcaps"`
+}
+
+func PostMerge(c *gin.Context) {
+	var req postMergeRequest
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
 	dir, err := os.MkdirTemp(misc.GetDataDir(), "mergecap")
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create temp directory!")
@@ -107,22 +118,19 @@ func GetMerge(c *gin.Context) {
 	}
 	defer os.RemoveAll(dir)
 
-	worker.RangeHosts(func(workerHost, v interface{}) bool {
+	for workerHost, pcaps := range req.Pcaps {
 		client := &http.Client{}
-		w := workerHost.(string)
 
-		err := misc.FetchMergedPcapFile(client, dir, w)
+		err := misc.FetchMergedPcapFile(client, dir, req.Query, pcaps, workerHost)
 		if err != nil {
-			return true
+			continue
 		}
 
-		err = misc.FetchNameResolutionHistory(client, dir, w)
+		err = misc.FetchNameResolutionHistory(client, dir, workerHost)
 		if err != nil {
-			return true
+			continue
 		}
-
-		return true
-	})
+	}
 
 	zipName, zipPath, err := misc.ZipIt(dir)
 	if err != nil {

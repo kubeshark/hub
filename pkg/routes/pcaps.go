@@ -10,6 +10,6 @@ func PcapsRoutes(ginApp *gin.Engine) {
 
 	routeGroup.GET("/total-tcp-streams", controllers.GetTotalTcpStreams)
 	routeGroup.GET("/download/:worker/:id", controllers.GetDownloadPcap)
-	routeGroup.GET("/merge", controllers.GetMerge)
+	routeGroup.POST("/merge", controllers.PostMerge)
 	routeGroup.GET("/replay/:worker/:id", controllers.GetReplay)
 }
