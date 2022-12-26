@@ -45,7 +45,7 @@ func Start(app *gin.Engine, port int) {
 	)
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    fmt.Sprintf(":%d", port),
 		Handler: app,
 	}
 
