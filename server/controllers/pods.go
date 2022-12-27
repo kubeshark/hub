@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,8 +14,6 @@ func PostWorker(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-
-	fmt.Printf("pod.Spec.NodeName: %v\n", pod.Spec.NodeName)
 
 	if !worker.RemovedDefaultHost {
 		worker.RemoveHost(worker.HostWithPort(worker.DefaultWorkerHost))
