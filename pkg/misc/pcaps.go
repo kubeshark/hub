@@ -88,7 +88,7 @@ func FetchMergedPcapFile(client *http.Client, dir string, query string, pcaps []
 		defer res.Body.Close()
 	}
 
-	filepath := fmt.Sprintf("%s/worker_%s_%s", dir, workerHost, filename)
+	filepath := fmt.Sprintf("%s/%s", dir, filename)
 	outFile, err := os.Create(filepath)
 	if err != nil {
 		log.Error().Err(err).Str("file", filepath).Msg("While creating file:")
@@ -115,7 +115,7 @@ func FetchNameResolutionHistory(client *http.Client, dir string, workerHost stri
 		return err
 	}
 
-	filepath := fmt.Sprintf("%s/worker_%s_name_resolution_history.json", dir, workerHost)
+	filepath := fmt.Sprintf("%s/name_resolution_history.json", dir)
 	outFile, err := os.Create(filepath)
 	if err != nil {
 		log.Error().Err(err).Str("file", filepath).Msg("While creating file:")

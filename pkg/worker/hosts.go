@@ -7,8 +7,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const DefaultWorkerHost = "localhost"
+const DefaultWorkerHost = "127.0.0.1"
 const DefaultWorkerPort = 8897
+const DefaultNodeName = "localhost"
 
 var RemovedDefaultHost bool
 
@@ -27,9 +28,9 @@ func AddHost(host string, name string) {
 	log.Info().Str("host", host).Msg("Added worker host:")
 }
 
-func AddHosts(hosts []string) {
+func AddHosts(hosts []string, name string) {
 	for _, host := range hosts {
-		AddHost(host, "")
+		AddHost(host, name)
 	}
 }
 
@@ -38,7 +39,7 @@ func GetHostName(host string) string {
 	if ok {
 		return v.(string)
 	} else {
-		return ""
+		return host
 	}
 }
 

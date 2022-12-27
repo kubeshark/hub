@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kubeshark/hub/pkg/misc"
@@ -83,19 +84,19 @@ func GetDownloadPcap(c *gin.Context) {
 		return
 	}
 
-	zipName, zipPath, err := misc.ZipIt(dir)
+	tarName, tarPath, err := misc.TarIt(dir)
 	if err != nil {
-		log.Error().Str("dir", dir).Err(err).Msg("Couldn't ZIP the directory!")
+		log.Error().Str("dir", dir).Err(err).Msg("Couldn't TAR the directory!")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
-	defer os.Remove(zipPath)
+	defer os.Remove(tarPath)
 
 	c.Header("Content-Description", "File Transfer")
 	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", "attachment; filename="+zipName)
+	c.Header("Content-Disposition", "attachment; filename="+tarName)
 	c.Header("Content-Type", "application/octet-stream")
-	c.File(zipPath)
+	c.File(tarPath)
 }
 
 type postMergeRequest struct {
@@ -110,7 +111,7 @@ func PostMerge(c *gin.Context) {
 		return
 	}
 
-	dir, err := os.MkdirTemp(misc.GetDataDir(), "mergecap")
+	dir, err := os.MkdirTemp(misc.GetDataDir(), "tarcap")
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create temp directory!")
 		c.JSON(http.StatusInternalServerError, err)
@@ -121,30 +122,39 @@ func PostMerge(c *gin.Context) {
 	for workerHost, pcaps := range req.Pcaps {
 		client := &http.Client{}
 
-		err := misc.FetchMergedPcapFile(client, dir, req.Query, pcaps, workerHost)
+		node := fmt.Sprintf("%s_%s", worker.GetHostName(workerHost), misc.RemovePortFromWorkerHost(workerHost))
+		subdir := filepath.Join(dir, node)
+		err := os.Mkdir(subdir, os.ModePerm)
+		if err != nil {
+			log.Error().Err(err).Str("subdir", subdir).Msg("Failed to create subdirectory!")
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		err = misc.FetchMergedPcapFile(client, subdir, req.Query, pcaps, workerHost)
 		if err != nil {
 			continue
 		}
 
-		err = misc.FetchNameResolutionHistory(client, dir, workerHost)
+		err = misc.FetchNameResolutionHistory(client, subdir, workerHost)
 		if err != nil {
 			continue
 		}
 	}
 
-	zipName, zipPath, err := misc.ZipIt(dir)
+	tarName, tarPath, err := misc.TarIt(dir)
 	if err != nil {
-		log.Error().Str("dir", dir).Err(err).Msg("Couldn't ZIP the directory!")
+		log.Error().Str("dir", dir).Err(err).Msg("Couldn't TAR the directory!")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
-	defer os.Remove(zipPath)
+	defer os.Remove(tarPath)
 
 	c.Header("Content-Description", "File Transfer")
 	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", "attachment; filename="+zipName)
+	c.Header("Content-Disposition", "attachment; filename="+tarName)
 	c.Header("Content-Type", "application/octet-stream")
-	c.File(zipPath)
+	c.File(tarPath)
 }
 
 func GetReplay(c *gin.Context) {

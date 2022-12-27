@@ -26,7 +26,7 @@ func main() {
 
 	misc.InitDataDir()
 	worker.InitHosts()
-	worker.AddHosts(strings.Split(*workerHostsFlag, " "))
+	worker.AddHosts(strings.Split(*workerHostsFlag, " "), worker.DefaultNodeName)
 
 	if *debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
