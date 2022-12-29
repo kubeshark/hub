@@ -170,6 +170,8 @@ func GetReplay(c *gin.Context) {
 	q := req.URL.Query()
 	q.Add("count", c.Query("count"))
 	q.Add("delay", c.Query("delay"))
+	q.Add("host", c.Query("host"))
+	q.Add("port", c.Query("port"))
 
 	req.URL.RawQuery = q.Encode()
 
