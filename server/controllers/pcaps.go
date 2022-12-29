@@ -184,3 +184,22 @@ func GetReplay(c *gin.Context) {
 		"status": res.Status,
 	})
 }
+
+func PostStorageLimit(c *gin.Context) {
+	var req worker.PostStorageLimit
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	err := worker.PostStorageLimitToWorkers(req)
+	if err != nil {
+		log.Error().Err(err).Msg("Workers set storage limit request:")
+		handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"limit": req.Limit,
+	})
+}
