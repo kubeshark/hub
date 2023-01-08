@@ -10,30 +10,30 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-var targettedPods []v1.Pod
+var targetedPods []v1.Pod
 
 func GetTarggetedPods() []v1.Pod {
-	return targettedPods
+	return targetedPods
 }
 
-func SetTargettedPods(pods []v1.Pod) {
-	targettedPods = pods
+func SetTargetedPods(pods []v1.Pod) {
+	targetedPods = pods
 }
 
-func PostTargettedPodsToWorkers() error {
-	podsMarshalled, err := json.Marshal(targettedPods)
+func PostTargetedPodsToWorkers() error {
+	podsMarshalled, err := json.Marshal(targetedPods)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to marshal the targetted pods:")
+		log.Error().Err(err).Msg("Failed to marshal the targeted pods:")
 		return err
 	}
 
 	RangeHosts(func(workerHost, v interface{}) bool {
 		client := &http.Client{}
-		setTargettedUrl := fmt.Sprintf("http://%s/pods/set-targetted", workerHost)
-		log.Info().Str("url", setTargettedUrl).Msg("Doing set targetted pods request:")
-		_, err = client.Post(setTargettedUrl, "application/json", bytes.NewBuffer(podsMarshalled))
+		setTargetedUrl := fmt.Sprintf("http://%s/pods/set-targeted", workerHost)
+		log.Info().Str("url", setTargetedUrl).Msg("Doing set targeted pods request:")
+		_, err = client.Post(setTargetedUrl, "application/json", bytes.NewBuffer(podsMarshalled))
 		if err != nil {
-			log.Error().Err(err).Str("url", setTargettedUrl).Msg("Set targetted pods request:")
+			log.Error().Err(err).Str("url", setTargetedUrl).Msg("Set targeted pods request:")
 		}
 
 		return true

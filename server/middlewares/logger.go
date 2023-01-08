@@ -11,7 +11,7 @@ import (
 
 var debugPaths = []string{
 	"/pcaps/total-tcp-streams",
-	"/pods/targetted",
+	"/pods/targeted",
 }
 
 // DefaultStructuredLogger logs a gin HTTP request in JSON format. Uses the

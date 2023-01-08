@@ -10,6 +10,10 @@ func PodsRoutes(ginApp *gin.Engine) {
 
 	routeGroup.POST("/worker", controllers.PostWorker)
 
-	routeGroup.GET("/targetted", controllers.GetTargetted)
-	routeGroup.POST("/targetted", controllers.PostTargetted)
+	routeGroup.GET("/targeted", controllers.GetTargeted)
+	routeGroup.POST("/targeted", controllers.PostTargeted)
+
+	// For backward compatibility (38.0, 38.1 has this typo)
+	routeGroup.GET("/targetted", controllers.GetTargeted)
+	routeGroup.POST("/targetted", controllers.PostTargeted)
 }

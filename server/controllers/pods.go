@@ -40,7 +40,7 @@ func PostWorker(c *gin.Context) {
 		msg = "Removed a worker host."
 	}
 
-	err := worker.PostTargettedPodsToWorkers()
+	err := worker.PostTargetedPodsToWorkers()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
@@ -57,7 +57,7 @@ type Target struct {
 	Namespace string `json:"namespace"`
 }
 
-func GetTargetted(c *gin.Context) {
+func GetTargeted(c *gin.Context) {
 	targets := make([]Target, 0)
 	pods := worker.GetTarggetedPods()
 	for _, pod := range pods {
@@ -72,15 +72,15 @@ func GetTargetted(c *gin.Context) {
 	})
 }
 
-func PostTargetted(c *gin.Context) {
+func PostTargeted(c *gin.Context) {
 	var pods []v1.Pod
 	if err := c.Bind(&pods); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	worker.SetTargettedPods(pods)
-	err := worker.PostTargettedPodsToWorkers()
+	worker.SetTargetedPods(pods)
+	err := worker.PostTargetedPodsToWorkers()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
